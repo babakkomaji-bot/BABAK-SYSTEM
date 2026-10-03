@@ -1,0 +1,33 @@
+{
+  "name": "babak-system",
+  "version": "1.0.0",
+  "description": "سامانه بابک - دفتر انبار و حساب",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win --publish never"
+  },
+  "devDependencies": {
+    "electron": "^31.0.0",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "ir.babaksystem.app",
+    "productName": "سامانه بابک",
+    "files": [
+      "main.js",
+      "preload.js",
+      "index.html",
+      "customer-display.html"
+    ],
+    "win": {
+      "target": "nsis"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    }
+  }
+}

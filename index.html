@@ -1,0 +1,3327 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>سامانه بابک | دفتر انبار و حساب</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap');
+
+  :root{
+    --bg: #16231D;
+    --panel: #1D2E26;
+    --panel-2: #24382F;
+    --panel-3: #2B4137;
+    --border: #33483D;
+    --ink: #ECE7DA;
+    --ink-dim: #A9B8AE;
+    --ink-faint: #7C8C82;
+    --gold: #C9A15A;
+    --gold-dim: #8A754A;
+    --green: #7BC79A;
+    --green-bg: rgba(123,199,154,0.12);
+    --red: #D08468;
+    --red-bg: rgba(208,132,104,0.12);
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+
+  *{ box-sizing: border-box; }
+
+  html,body{
+    margin:0; padding:0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Vazirmatn', Tahoma, 'Segoe UI', sans-serif;
+    min-height: 100vh;
+  }
+
+  body{
+    background-image:
+      radial-gradient(circle at 15% 0%, rgba(201,161,90,0.06), transparent 40%),
+      radial-gradient(circle at 85% 100%, rgba(123,199,154,0.05), transparent 45%);
+  }
+
+  .ltr{ direction: ltr; text-align: left; }
+
+  input, select, button, textarea{
+    font-family: inherit;
+  }
+
+  input, select{
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    color: var(--ink);
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+    font-size: 14px;
+    width: 100%;
+    outline: none;
+    transition: border-color .15s ease;
+  }
+  input:focus, select:focus{
+    border-color: var(--gold);
+  }
+  label{
+    display:block;
+    font-size: 12.5px;
+    color: var(--ink-dim);
+    margin-bottom: 6px;
+  }
+  .field{ margin-bottom: 14px; }
+
+  button{
+    cursor: pointer;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-weight: 600;
+    padding: 11px 18px;
+    transition: transform .1s ease, opacity .15s ease;
+  }
+  button:active{ transform: scale(0.97); }
+  .btn-primary{
+    background: linear-gradient(180deg, #D6B36E, var(--gold));
+    color: #1B140A;
+  }
+  .btn-primary:hover{ opacity:0.92; }
+  .btn-ghost{
+    background: var(--panel-2);
+    color: var(--ink);
+    border: 1px solid var(--border);
+  }
+  .btn-ghost:hover{ border-color: var(--gold-dim); }
+  .btn-danger{
+    background: var(--red-bg);
+    color: var(--red);
+    border: 1px solid rgba(208,132,104,0.35);
+  }
+  .btn-sm{ padding: 7px 12px; font-size: 12.5px; }
+  .btn-block{ width: 100%; }
+
+  /* ---------- Login ---------- */
+  #login-screen{
+    min-height: 100vh;
+    display:flex; align-items:center; justify-content:center;
+    padding: 24px;
+  }
+  .login-card{
+    width: 100%;
+    max-width: 360px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px 24px;
+  }
+  .seal{
+    width: 56px; height:56px;
+    border-radius: 50%;
+    border: 2px solid var(--gold);
+    display:flex; align-items:center; justify-content:center;
+    margin: 0 auto 16px auto;
+    font-size: 22px; font-weight:800; color: var(--gold);
+    box-shadow: 0 0 0 4px rgba(201,161,90,0.08);
+  }
+  .brand-title{
+    text-align:center;
+    font-size: 21px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    margin: 0 0 2px 0;
+  }
+  .brand-sub{
+    text-align:center;
+    font-size: 12.5px;
+    color: var(--ink-dim);
+    margin: 0 0 22px 0;
+  }
+  .login-error{
+    color: var(--red);
+    font-size: 12.5px;
+    text-align:center;
+    min-height: 18px;
+    margin-top: 8px;
+  }
+  .login-hint{
+    color: var(--ink-faint);
+    font-size: 11.5px;
+    text-align:center;
+    margin-top: 18px;
+    line-height: 1.9;
+  }
+
+  /* ---------- App shell ---------- */
+  #app-shell{ display:none; min-height: 100vh; flex-direction: column; }
+  header.topbar{
+    position: sticky; top:0; z-index: 10;
+    background: rgba(22,35,29,0.92);
+    backdrop-filter: blur(6px);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 16px;
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  .topbar-left{ display:flex; align-items:center; gap:10px; }
+  .seal-sm{
+    width: 34px; height:34px; border-radius:50%;
+    border: 1.5px solid var(--gold);
+    display:flex; align-items:center; justify-content:center;
+    font-weight:800; color:var(--gold); font-size:14px;
+  }
+  .topbar-title{ font-weight:800; font-size:15px; }
+  .topbar-date{ font-size:11.5px; color: var(--ink-dim); }
+  .icon-btn{
+    background: transparent; border: 1px solid var(--border);
+    color: var(--ink-dim); width: 36px; height:36px; border-radius: 50%;
+    display:flex; align-items:center; justify-content:center; font-size:15px;
+    padding:0;
+  }
+
+  nav.tabs{
+    display:flex; gap:8px; overflow-x:auto;
+    padding: 10px 16px; border-bottom: 1px solid var(--border);
+    scrollbar-width: none;
+  }
+  nav.tabs::-webkit-scrollbar{ display:none; }
+  .tab-btn{
+    flex: 0 0 auto;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--ink-dim);
+    padding: 9px 16px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .tab-btn.active{
+    background: var(--gold);
+    color: #1B140A;
+    border-color: var(--gold);
+  }
+
+  main{ flex:1; padding: 16px; padding-bottom: 60px; max-width: 720px; width:100%; margin: 0 auto; }
+
+  .section-title{
+    font-size: 15px; font-weight: 800; margin: 4px 0 12px 0;
+    display:flex; align-items:center; justify-content:space-between;
+  }
+
+  .cards-grid{
+    display:grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 18px;
+  }
+  .stat-card{
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px;
+  }
+  .stat-card .stat-label{ font-size: 11.5px; color: var(--ink-dim); margin-bottom:6px; }
+  .stat-card .stat-value{ font-size: 16px; font-weight: 800; }
+  .stat-card.wide{ grid-column: 1 / -1; }
+  .stat-value.green{ color: var(--green); }
+  .stat-value.red{ color: var(--red); }
+  .stat-value.gold{ color: var(--gold); }
+
+  .panel{
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px;
+    margin-bottom: 16px;
+  }
+
+  .table-wrap{ overflow-x: auto; overflow-y: auto; max-height: 60vh; border-radius: var(--radius); border:1px solid var(--border); }
+  table{ width:100%; border-collapse: collapse; min-width: 560px; }
+  th, td{
+    text-align: right;
+    padding: 10px 12px;
+    font-size: 12.8px;
+    white-space: nowrap;
+    border-bottom: 1px solid var(--border);
+  }
+  thead th{
+    background: var(--panel-2);
+    color: var(--ink-dim);
+    font-weight: 600;
+    position: sticky; top:0;
+  }
+  tbody tr:last-child td{ border-bottom:none; }
+  tbody tr:hover{ background: rgba(255,255,255,0.02); }
+
+  .badge{
+    display:inline-block; padding: 3px 9px; border-radius:999px;
+    font-size: 11px; font-weight: 700;
+  }
+  .badge.in-stock{ background: var(--green-bg); color: var(--green); }
+  .badge.sold-out{ background: rgba(255,255,255,0.06); color: var(--ink-faint); }
+  .badge.purchase{ background: var(--red-bg); color: var(--red); }
+  .badge.sale{ background: var(--green-bg); color: var(--green); }
+  .badge.payment{ background: rgba(201,161,90,0.15); color: var(--gold); }
+  .badge.cash{ background: var(--green-bg); color: var(--green); }
+  .badge.credit{ background: var(--red-bg); color: var(--red); }
+  .badge.transfer{ background: rgba(127,168,224,0.15); color: #7fa8e0; }
+  .badge.card{ background: rgba(180,140,220,0.15); color: #b48cdc; }
+  .badge.service{ background: rgba(201,161,90,0.15); color: var(--gold); }
+
+  .row-actions{ display:flex; gap:6px; }
+
+  .empty-state{
+    text-align:center; padding: 40px 20px; color: var(--ink-faint);
+  }
+  .empty-state .big{ font-size: 30px; margin-bottom:10px; }
+  .empty-state p{ font-size: 13px; line-height:1.9; margin:0; }
+
+  .fab{
+    position: fixed; left: 18px; bottom: 18px; z-index: 20;
+    width: 54px; height:54px; border-radius:50%;
+    background: linear-gradient(180deg,#D6B36E, var(--gold));
+    color:#1B140A; font-size: 26px; font-weight:800;
+    display:flex; align-items:center; justify-content:center;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+  }
+
+  /* ---------- Modal ---------- */
+  .modal-overlay{
+    display:none; position: fixed; inset:0; background: rgba(0,0,0,0.55);
+    z-index: 50; align-items:flex-end; justify-content:center;
+  }
+  .modal-overlay.open{ display:flex; }
+  .modal-card{
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-top-right-radius: 18px; border-top-left-radius: 18px;
+    width: 100%; max-width: 480px;
+    padding: 20px 18px 24px 18px;
+    max-height: 88vh; overflow-y:auto;
+    animation: slideup .18s ease;
+  }
+  @keyframes slideup{ from{ transform: translateY(30px); opacity:0; } to{ transform:none; opacity:1; } }
+  @keyframes alarmPulse{
+    0%, 100% { box-shadow: 0 0 0 0 rgba(208,132,104,0.55); }
+    50% { box-shadow: 0 0 0 18px rgba(208,132,104,0); }
+  }
+  @keyframes alarmBellShake{
+    0%, 100% { transform: rotate(0deg); }
+    20% { transform: rotate(-12deg); }
+    40% { transform: rotate(10deg); }
+    60% { transform: rotate(-8deg); }
+    80% { transform: rotate(6deg); }
+  }
+  .alarm-card{
+    border: 2px solid var(--red) !important;
+    animation: alarmPulse 1.4s infinite;
+  }
+  .alarm-bell{
+    font-size: 40px;
+    text-align: center;
+    margin-bottom: 10px;
+    animation: alarmBellShake 1s infinite;
+  }
+  .reminder-day-header{
+    font-size: 12.5px; font-weight: 700; color: var(--gold);
+    margin: 16px 0 8px 0; padding-bottom: 6px; border-bottom: 1px solid var(--border);
+  }
+  .reminder-card{
+    background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius-sm);
+    padding: 12px; margin-bottom: 8px; display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;
+  }
+  .reminder-card.overdue{ border-color: var(--red); background: var(--red-bg); }
+  .modal-title{ font-size:15px; font-weight:800; margin-bottom:16px; display:flex; justify-content:space-between; align-items:center; }
+  .modal-close{ background:none; border:none; color:var(--ink-dim); font-size:18px; padding:4px; }
+  .modal-actions{ display:flex; gap:10px; margin-top: 6px; }
+  .modal-actions button{ flex:1; }
+
+  .two-col{ display:grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+  #toast-host{
+    position: fixed; top: 14px; left:50%; transform: translateX(-50%);
+    z-index: 100; display:flex; flex-direction:column; gap:8px; align-items:center;
+  }
+  .toast{
+    background: var(--panel-3);
+    border: 1px solid var(--gold-dim);
+    color: var(--ink);
+    padding: 10px 16px;
+    border-radius: 999px;
+    font-size: 12.5px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.35);
+    animation: fadein .15s ease;
+  }
+  @keyframes fadein{ from{opacity:0; transform:translateY(-6px);} to{opacity:1; transform:none;} }
+
+  .sub-tabs{ display:flex; gap:8px; margin-bottom: 12px; }
+  .sub-tab{
+    flex:1; text-align:center;
+    background: var(--panel-2); border:1px solid var(--border); color: var(--ink-dim);
+    padding: 8px; border-radius: var(--radius-sm); font-size:12.5px; font-weight:600;
+  }
+  .sub-tab.active{ background: var(--panel-3); color: var(--gold); border-color: var(--gold-dim); }
+
+  .divider{ height:1px; background: var(--border); margin: 16px 0; }
+
+  .hint-box{
+    font-size: 11.5px; color: var(--ink-faint); line-height:1.9;
+    background: var(--panel-2); border: 1px dashed var(--border);
+    border-radius: var(--radius-sm); padding: 10px 12px; margin-top: 10px;
+  }
+
+  @media (min-width: 640px){
+    .cards-grid{ grid-template-columns: repeat(4,1fr); }
+    .stat-card.wide{ grid-column: auto; }
+  }
+</style>
+</head>
+<body>
+
+<div id="toast-host"></div>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-card" id="login-card"></div>
+</div>
+
+<!-- APP -->
+<div id="app-shell">
+  <header class="topbar">
+    <div class="topbar-left">
+      <div class="seal-sm">ب</div>
+      <div>
+        <div class="topbar-title">سامانه بابک</div>
+        <div class="topbar-date" id="topbar-date"></div>
+      </div>
+    </div>
+    <button class="icon-btn" id="logout-btn" title="خروج">⎋</button>
+  </header>
+
+  <nav class="tabs">
+    <button class="tab-btn" data-tab="pos">صندوق فروش</button>
+    <button class="tab-btn" data-tab="inventory">انبار</button>
+    <button class="tab-btn" data-tab="services">خدمات</button>
+    <button class="tab-btn" data-tab="customers">CRM</button>
+    <button class="tab-btn" data-tab="ledger">گردش حساب</button>
+    <button class="tab-btn" data-tab="expenses">هزینه‌های جانبی</button>
+    <button class="tab-btn" data-tab="reports">سود و زیان</button>
+    <button class="tab-btn" data-tab="settings">تنظیمات</button>
+  </nav>
+
+  <main id="main-content"></main>
+</div>
+
+<div class="fab" id="fab-add" style="display:none;">＋</div>
+
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal-card" id="modal-card"></div>
+</div>
+
+<script>
+/* ===================== Storage layer (persists locally via localStorage) ===================== */
+const memStore = {};
+
+async function storageGet(key){
+  try{ return localStorage.getItem(key); }
+  catch(e){ return memStore[key] ?? null; }
+}
+async function storageSet(key, val){
+  try{ localStorage.setItem(key, val); }
+  catch(e){ memStore[key] = val; }
+}
+
+/* ===================== Utilities ===================== */
+function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+function todayISO(){
+  const d = new Date();
+  const tz = d.getTimezoneOffset();
+  const local = new Date(d.getTime() - tz*60000);
+  return local.toISOString().slice(0,10);
+}
+function toFaDigits(input){
+  return String(input).replace(/[0-9]/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]);
+}
+function numFa(n){
+  let num = Math.round(Number(n || 0));
+  const negative = num < 0;
+  num = Math.abs(num);
+  const withCommas = String(num).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  return (negative ? '-' : '') + toFaDigits(withCommas);
+}
+function toman(n){
+  return numFa(n) + ' تومان';
+}
+function paymentTypeLabel(type){
+  if(type === 'credit') return 'نسیه';
+  if(type === 'transfer') return 'واریز';
+  if(type === 'card') return 'کارتخوان';
+  return 'نقدی';
+}
+function paymentTypeBadgeClass(type){
+  if(type === 'credit') return 'credit';
+  if(type === 'transfer') return 'transfer';
+  if(type === 'card') return 'card';
+  return 'cash';
+}
+
+/* ---- Live comma formatting for money input fields (کلاس money-input) ---- */
+function commaizeDigits(digitsStr){
+  return digitsStr.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+}
+function formatMoneyInputValue(n){
+  const num = Math.round(Number(n || 0));
+  if(!num) return '';
+  return commaizeDigits(String(Math.abs(num)));
+}
+function parseMoneyInput(id){
+  const el = document.getElementById(id);
+  if(!el) return NaN;
+  const raw = el.value.replace(/[^\d]/g, '');
+  return raw === '' ? NaN : parseFloat(raw);
+}
+function bindMoneyInputFormatting(){
+  document.querySelectorAll('.money-input').forEach(input => {
+    input.oninput = () => {
+      const cursorFromEnd = input.value.length - input.selectionStart;
+      const raw = input.value.replace(/[^\d]/g, '');
+      input.value = raw ? commaizeDigits(raw) : '';
+      const pos = Math.max(0, input.value.length - cursorFromEnd);
+      input.setSelectionRange(pos, pos);
+    };
+  });
+}
+
+// Builds <option> entries for a <datalist> so typing even part of a name
+// surfaces matching existing entries (Chromium/Electron filter datalist
+// options by substring, not just prefix).
+function nameDatalistOptions(names){
+  const unique = [...new Set(names.filter(Boolean).map(n => n.trim()).filter(Boolean))];
+  return unique.map(n => `<option value="${n}"></option>`).join('');
+}
+
+// Reusable live-filter search box: filters a table as the user types,
+// even mid-word, while keeping focus and cursor position across the
+// full re-render (renderMain rebuilds the DOM on every keystroke).
+function matchesSearch(text, query){
+  if(!query || !query.trim()) return true;
+  return String(text || '').toLowerCase().includes(query.trim().toLowerCase());
+}
+function bindTableSearch(inputId, setValue, rerender){
+  const input = document.getElementById(inputId);
+  if(!input) return;
+  input.oninput = () => {
+    const pos = input.selectionStart;
+    setValue(input.value);
+    rerender();
+    requestAnimationFrame(() => {
+      const el = document.getElementById(inputId);
+      if(el){ el.focus(); el.setSelectionRange(pos, pos); }
+    });
+  };
+}
+
+const jMonths = ['فروردین','اردیبهشت','خرداد','تیر','مرداد','شهریور','مهر','آبان','آذر','دی','بهمن','اسفند'];
+
+const SERVICE_CATEGORIES = [
+  { key: 'copy-print', label: 'خدمات کپی و پرینت' },
+  { key: 'print', label: 'خدمات چاپ' },
+  { key: 'design', label: 'خدمات طراحی' },
+  { key: 'other', label: 'سایر خدمات' }
+];
+// چاپ و طراحی قیمت ثابتی ندارند، پس در فهرست خدمات (کاتالوگ) نمایش داده نمی‌شوند؛
+// این دو دسته مستقیماً هنگام فروش در صندوق با هزینه/قیمت دستی ثبت می‌شوند.
+const CATALOG_SERVICE_CATEGORIES = SERVICE_CATEGORIES.filter(c => c.key === 'copy-print' || c.key === 'other');
+function serviceCategoryLabel(key){
+  const found = SERVICE_CATEGORIES.find(c => c.key === key);
+  return found ? found.label : 'سایر خدمات';
+}
+// Fall back gracefully for services saved before cost/salePrice existed (older "price" field)
+function serviceCost(s){ return s.cost != null ? s.cost : 0; }
+function serviceSalePrice(s){ return s.salePrice != null ? s.salePrice : (s.price || 0); }
+function serviceCategoryKey(s){ return s.category || 'other'; }
+
+function jalaliParts(iso){
+  const d = new Date(iso + 'T12:00:00');
+  const parts = new Intl.DateTimeFormat('en-US-u-ca-persian', {year:'numeric', month:'2-digit', day:'2-digit'}).formatToParts(d);
+  const obj = {};
+  parts.forEach(p => obj[p.type] = p.value);
+  return { y: obj.year, m: obj.month, d: obj.day };
+}
+function jalaliDisplay(iso){
+  if(!iso) return '—';
+  const p = jalaliParts(iso);
+  return toFaDigits(`${p.y}/${p.m}/${p.d}`);
+}
+function jalaliMonthLabel(iso){
+  const p = jalaliParts(iso);
+  return `${jMonths[parseInt(p.m,10)-1]} ${toFaDigits(p.y)}`;
+}
+
+async function sha256Hex(str){
+  const enc = new TextEncoder().encode(str);
+  const buf = await crypto.subtle.digest('SHA-256', enc);
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+
+function showToast(msg){
+  const host = document.getElementById('toast-host');
+  const el = document.createElement('div');
+  el.className = 'toast';
+  el.textContent = msg;
+  host.appendChild(el);
+  setTimeout(() => el.remove(), 2600);
+}
+
+function closeModal(){
+  document.getElementById('modal-overlay').classList.remove('open');
+  document.getElementById('modal-card').classList.remove('alarm-card');
+  document.getElementById('modal-card').innerHTML = '';
+}
+function openModal(html){
+  document.getElementById('modal-card').innerHTML = html;
+  document.getElementById('modal-overlay').classList.add('open');
+}
+function confirmAction(message, onYes){
+  openModal(`
+    <div class="modal-title">تایید عملیات</div>
+    <p style="font-size:13.5px; color:var(--ink-dim); line-height:1.9;">${message}</p>
+    <div class="modal-actions">
+      <button class="btn-ghost" id="confirm-no">انصراف</button>
+      <button class="btn-danger" id="confirm-yes">تایید و ادامه</button>
+    </div>
+  `);
+  document.getElementById('confirm-no').onclick = closeModal;
+  document.getElementById('confirm-yes').onclick = () => { closeModal(); onYes(); };
+}
+
+/* ===================== Auto-Backup (folder-based) ===================== */
+let backupMode = null;        // 'electron' | 'fsapi' | 'unsupported'
+let backupFolderPath = null;  // electron mode: chosen folder path (string)
+let backupDirHandle = null;   // browser mode: FileSystemDirectoryHandle
+
+const BACKUP_DB_NAME = 'sarjam_backup_db';
+const BACKUP_STORE = 'handles';
+
+function openBackupDB(){
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open(BACKUP_DB_NAME, 1);
+    req.onupgradeneeded = () => { req.result.createObjectStore(BACKUP_STORE); };
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+async function idbSet(key, value){
+  const db = await openBackupDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(BACKUP_STORE, 'readwrite');
+    tx.objectStore(BACKUP_STORE).put(value, key);
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+  });
+}
+async function idbGet(key){
+  const db = await openBackupDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(BACKUP_STORE, 'readonly');
+    const req = tx.objectStore(BACKUP_STORE).get(key);
+    req.onsuccess = () => resolve(req.result || null);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+function detectBackupMode(){
+  if(typeof window.posBridge !== 'undefined' && window.posBridge.chooseBackupFolder) return 'electron';
+  if(typeof window.showDirectoryPicker === 'function') return 'fsapi';
+  return 'unsupported';
+}
+
+function hasBackupFolderConfigured(){
+  if(backupMode === 'electron') return !!backupFolderPath;
+  if(backupMode === 'fsapi') return !!backupDirHandle;
+  return false;
+}
+
+async function initBackup(){
+  backupMode = detectBackupMode();
+  if(backupMode === 'electron'){
+    backupFolderPath = localStorage.getItem('sarjam_backup_folder_path') || null;
+  } else if(backupMode === 'fsapi'){
+    try{
+      const handle = await idbGet('backupDirHandle');
+      if(handle){
+        const perm = await handle.queryPermission({ mode: 'readwrite' });
+        backupDirHandle = (perm === 'granted') ? handle : null;
+      }
+    }catch(e){ backupDirHandle = null; }
+  }
+  if(backupMode !== 'unsupported' && !hasBackupFolderConfigured()){
+    showBackupSetupPrompt();
+  }
+}
+
+function showBackupSetupPrompt(){
+  openModal(`
+    <div class="modal-title">تنظیم پوشه پشتیبان خودکار <button class="modal-close" id="modal-close">✕</button></div>
+    <p style="font-size:13px; color:var(--ink-dim); line-height:1.9;">
+      یک پوشه روی سیستم انتخاب کنید تا از این پس، بعد از هر فروش در صندوق، یک نسخه
+      به‌روز از تمام اطلاعات به‌طور خودکار در همان پوشه ذخیره شود.
+    </p>
+    <div class="modal-actions">
+      <button class="btn-ghost" id="skip-backup-setup">بعداً از تنظیمات</button>
+      <button class="btn-primary" id="choose-backup-folder-btn">انتخاب پوشه</button>
+    </div>
+  `);
+  document.getElementById('modal-close').onclick = closeModal;
+  document.getElementById('skip-backup-setup').onclick = closeModal;
+  document.getElementById('choose-backup-folder-btn').onclick = chooseBackupFolder;
+}
+
+async function chooseBackupFolder(){
+  if(backupMode === 'electron'){
+    const folder = await window.posBridge.chooseBackupFolder();
+    if(!folder){ showToast('انتخاب پوشه لغو شد'); return; }
+    backupFolderPath = folder;
+    localStorage.setItem('sarjam_backup_folder_path', folder);
+    showToast('پوشه پشتیبان با موفقیت تنظیم شد');
+    closeModal();
+    renderMain();
+  } else if(backupMode === 'fsapi'){
+    try{
+      const handle = await window.showDirectoryPicker({ mode: 'readwrite' });
+      backupDirHandle = handle;
+      await idbSet('backupDirHandle', handle);
+      showToast('پوشه پشتیبان با موفقیت تنظیم شد');
+      closeModal();
+      renderMain();
+    }catch(e){
+      if(e.name !== 'AbortError') showToast('انتخاب پوشه ناموفق بود');
+    }
+  } else {
+    showToast('مرورگر شما از این قابلیت پشتیبانی نمی‌کند');
+  }
+}
+
+async function writeAutoBackup(){
+  if(!hasBackupFolderConfigured()) return;
+  const payload = {
+    appName: 'سامانه بابک', exportVersion: 1, exportedAt: todayISO(),
+    items, txs, invoices, services, customers, reminders, expenses
+  };
+  const json = JSON.stringify(payload, null, 2);
+  try{
+    if(backupMode === 'electron'){
+      const res = await window.posBridge.writeBackupFile({ folderPath: backupFolderPath, filename: 'babak-backup.json', content: json });
+      if(!res || !res.ok) showToast('خطا در ذخیره پشتیبان خودکار');
+    } else if(backupMode === 'fsapi'){
+      const perm = await backupDirHandle.queryPermission({ mode: 'readwrite' });
+      if(perm !== 'granted'){
+        showToast('دسترسی به پوشه پشتیبان قطع شده؛ از تنظیمات دوباره وصل کنید');
+        return;
+      }
+      const fileHandle = await backupDirHandle.getFileHandle('babak-backup.json', { create: true });
+      const writable = await fileHandle.createWritable();
+      await writable.write(json);
+      await writable.close();
+    }
+  }catch(e){
+    showToast('خطا در ذخیره خودکار پشتیبان');
+  }
+}
+
+/* ===================== State ===================== */
+let items = [];
+let txs = [];
+let invoices = [];
+let services = [];
+let customers = [];
+let reminders = [];
+let expenses = [];
+let cart = [];
+let authHash = null;
+let editPinHash = null;
+let businessInfo = null;
+let currentTab = 'pos';
+let reportPeriod = 'day';
+let reportDateFrom = null;
+let reportDateTo = null;
+let showSoldOut = false;
+let inventorySearchQuery = '';
+let servicesSearchQuery = '';
+let customersSearchQuery = '';
+let expensesSearchQuery = '';
+let ledgerSearchQuery = '';
+let remindersSearchQuery = '';
+let crmSubView = 'list';
+
+const DEFAULT_BUSINESS_INFO = {
+  name: 'چاپ بابک',
+  ownerName: 'بابک کماجی',
+  phone: '09122476059',
+  economicCode: '',
+  registrationNo: '',
+  nationalId: '',
+  address: '',
+  cardNumber: '6219-8610-9182-9381',
+  shaba: 'IR950560083080000750327001',
+  deliveryTime: '۲ هفته الی بیست روز کاری پس از واریز مبلغ فاکتور',
+  validityNote: 'اعتبار این فاکتور ۲۴ ساعت می‌باشد'
+};
+
+async function loadState(){
+  authHash = await storageGet('sarjam_auth_hash');
+  editPinHash = await storageGet('sarjam_edit_pin_hash');
+  const itemsRaw = await storageGet('sarjam_items');
+  const txRaw = await storageGet('sarjam_tx');
+  const invRaw = await storageGet('sarjam_invoices');
+  const svcRaw = await storageGet('sarjam_services');
+  const custRaw = await storageGet('sarjam_customers');
+  const remRaw = await storageGet('sarjam_reminders');
+  const expRaw = await storageGet('sarjam_expenses');
+  const bizRaw = await storageGet('sarjam_business_info');
+  items = itemsRaw ? JSON.parse(itemsRaw) : [];
+  txs = txRaw ? JSON.parse(txRaw) : [];
+  invoices = invRaw ? JSON.parse(invRaw) : [];
+  services = svcRaw ? JSON.parse(svcRaw) : [];
+  customers = custRaw ? JSON.parse(custRaw) : [];
+  reminders = remRaw ? JSON.parse(remRaw) : [];
+  expenses = expRaw ? JSON.parse(expRaw) : [];
+  businessInfo = bizRaw ? { ...DEFAULT_BUSINESS_INFO, ...JSON.parse(bizRaw) } : { ...DEFAULT_BUSINESS_INFO };
+}
+async function saveItems(){ await storageSet('sarjam_items', JSON.stringify(items)); }
+async function saveTx(){ await storageSet('sarjam_tx', JSON.stringify(txs)); }
+async function saveInvoices(){ await storageSet('sarjam_invoices', JSON.stringify(invoices)); }
+async function saveServices(){ await storageSet('sarjam_services', JSON.stringify(services)); }
+async function saveCustomers(){ await storageSet('sarjam_customers', JSON.stringify(customers)); }
+async function saveReminders(){ await storageSet('sarjam_reminders', JSON.stringify(reminders)); }
+async function saveExpenses(){ await storageSet('sarjam_expenses', JSON.stringify(expenses)); }
+async function saveAuth(hash){ authHash = hash; await storageSet('sarjam_auth_hash', hash); }
+async function saveEditPin(hash){ editPinHash = hash; await storageSet('sarjam_edit_pin_hash', hash); }
+async function saveBusinessInfo(){ await storageSet('sarjam_business_info', JSON.stringify(businessInfo)); }
+
+/* ===================== Login / Setup ===================== */
+function renderLoginSetup(){
+  document.getElementById('login-card').innerHTML = `
+    <div class="seal">ب</div>
+    <div class="brand-title">سامانه بابک</div>
+    <div class="brand-sub">تنظیم رمز عبور اولیه</div>
+    <div class="field">
+      <label>رمز عبور جدید</label>
+      <input type="password" id="new-pass" placeholder="حداقل ۴ کاراکتر">
+    </div>
+    <div class="field">
+      <label>تکرار رمز عبور</label>
+      <input type="password" id="new-pass2" placeholder="رمز عبور را دوباره وارد کنید">
+    </div>
+    <button class="btn-primary btn-block" id="setup-btn">ذخیره و ورود</button>
+    <div class="login-error" id="login-err"></div>
+    <div class="login-hint">این رمز فقط برای جلوگیری از دسترسی سریع دیگران روی همین دستگاه است و جایگزین امنیت واقعی نیست.</div>
+  `;
+  document.getElementById('setup-btn').onclick = async () => {
+    const p1 = document.getElementById('new-pass').value;
+    const p2 = document.getElementById('new-pass2').value;
+    const err = document.getElementById('login-err');
+    if(p1.length < 4){ err.textContent = 'رمز عبور باید حداقل ۴ کاراکتر باشد'; return; }
+    if(p1 !== p2){ err.textContent = 'تکرار رمز با رمز عبور یکسان نیست'; return; }
+    const hash = await sha256Hex(p1);
+    await saveAuth(hash);
+    showToast('رمز عبور ذخیره شد');
+    enterApp();
+  };
+}
+
+function renderLoginEnter(){
+  document.getElementById('login-card').innerHTML = `
+    <div class="seal">ب</div>
+    <div class="brand-title">سامانه بابک</div>
+    <div class="brand-sub">Babak System — دفتر انبار و حساب</div>
+    <div class="field">
+      <label>رمز عبور</label>
+      <input type="password" id="login-pass" placeholder="رمز عبور خود را وارد کنید">
+    </div>
+    <button class="btn-primary btn-block" id="login-btn">ورود</button>
+    <div class="login-error" id="login-err"></div>
+  `;
+  const doLogin = async () => {
+    const p = document.getElementById('login-pass').value;
+    const err = document.getElementById('login-err');
+    const hash = await sha256Hex(p);
+    if(hash === authHash){ showToast('خوش آمدید'); enterApp(); }
+    else{ err.textContent = 'رمز عبور اشتباه است'; }
+  };
+  document.getElementById('login-btn').onclick = doLogin;
+  document.getElementById('login-pass').addEventListener('keydown', e => { if(e.key === 'Enter') doLogin(); });
+}
+
+function enterApp(){
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app-shell').style.display = 'flex';
+  document.getElementById('fab-add').style.display = 'flex';
+  updateTopbarDate();
+  renderTabs();
+  renderMain();
+  initBackup();
+  checkReminderAlarms();
+  setInterval(checkReminderAlarms, 60000);
+}
+
+function updateTopbarDate(){
+  document.getElementById('topbar-date').textContent = jalaliDisplay(todayISO());
+}
+
+/* ===================== Tabs ===================== */
+function renderTabs(){
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.tab === currentTab);
+  });
+  document.getElementById('fab-add').style.display = ['inventory','services','customers','expenses'].includes(currentTab) ? 'flex' : 'none';
+}
+
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    currentTab = btn.dataset.tab;
+    renderTabs();
+    renderMain();
+  });
+});
+
+function renderMain(){
+  const main = document.getElementById('main-content');
+  if(currentTab === 'pos') main.innerHTML = renderPOS();
+  else if(currentTab === 'inventory') main.innerHTML = renderInventory();
+  else if(currentTab === 'services') main.innerHTML = renderServices();
+  else if(currentTab === 'customers') main.innerHTML = renderCustomers();
+  else if(currentTab === 'ledger') main.innerHTML = renderLedger();
+  else if(currentTab === 'expenses') main.innerHTML = renderExpenses();
+  else if(currentTab === 'reports') main.innerHTML = renderReports();
+  else if(currentTab === 'settings') main.innerHTML = renderSettings();
+  attachHandlers();
+}
+
+/* ===================== POS / Checkout Tab ===================== */
+function renderPOS(){
+  const inStock = items.filter(it => it.qty > 0);
+  const cartTotal = cart.reduce((s,l) => s + l.qty*l.unitPrice, 0);
+
+  const productOptions = inStock.map(it =>
+    `<option value="${it.id}">${it.name} — موجودی ${numFa(it.qty)} — ${toman(it.salePrice)}</option>`
+  ).join('');
+
+  const serviceOptions = CATALOG_SERVICE_CATEGORIES.map(cat => {
+    const list = services.filter(s => serviceCategoryKey(s) === cat.key);
+    if(list.length === 0) return '';
+    const opts = list.map(s => `<option value="${s.id}">${s.name} — ${toman(serviceSalePrice(s))}</option>`).join('');
+    return `<optgroup label="${cat.label}">${opts}</optgroup>`;
+  }).join('');
+
+  const cartRows = cart.map(l => `
+    <tr>
+      <td>${l.name}${l.kind === 'service' ? ` <span class="badge service" style="margin-right:6px;">${l.category ? serviceCategoryLabel(l.category) : 'خدمت'}</span>` : ''}</td>
+      <td>
+        <div style="display:flex; align-items:center; gap:6px;">
+          <button class="btn-ghost btn-sm" data-action="cart-dec" data-id="${l.itemId}" data-kind="${l.kind}">－</button>
+          <span>${numFa(l.qty)}</span>
+          <button class="btn-ghost btn-sm" data-action="cart-inc" data-id="${l.itemId}" data-kind="${l.kind}">＋</button>
+        </div>
+      </td>
+      <td>${toman(l.unitPrice)}</td>
+      <td>${toman(l.qty * l.unitPrice)}</td>
+      <td><button class="btn-danger btn-sm" data-action="cart-remove" data-id="${l.itemId}" data-kind="${l.kind}">حذف</button></td>
+    </tr>
+  `).join('');
+
+  const recentInvoices = [...invoices].sort((a,b) => b.date.localeCompare(a.date)).slice(0,5);
+  const invoiceRows = recentInvoices.map(inv => `
+    <tr>
+      <td>${jalaliDisplay(inv.date)}</td>
+      <td>${inv.customerName || 'مشتری مهمان'}${inv.customerPhone ? ` <span class="ltr" style="color:var(--ink-dim); font-size:11.5px;">(${inv.customerPhone})</span>` : ''}</td>
+      <td><span class="badge ${paymentTypeBadgeClass(inv.paymentType)}">${paymentTypeLabel(inv.paymentType)}</span></td>
+      <td>${numFa(inv.lines.length)} قلم</td>
+      <td>${toman(inv.total)}</td>
+      <td>
+        <div class="row-actions">
+          <button class="btn-ghost btn-sm" data-action="download-invoice-excel" data-id="${inv.id}">فاکتور اکسل</button>
+          <button class="btn-danger btn-sm" data-action="delete-invoice" data-id="${inv.id}">حذف</button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+
+  const displayStatus = (typeof window.posBridge !== 'undefined')
+    ? `<span class="badge in-stock">نمایشگر مشتری متصل است</span>`
+    : `<span class="badge sold-out">نمایشگر مشتری وصل نیست (فقط در نسخه دسکتاپ فعال است)</span>`;
+
+  return `
+    <div class="section-title"><span>صندوق فروش</span>${displayStatus}</div>
+
+    <div class="panel">
+      <div style="font-size:13px; font-weight:700; margin-bottom:10px;">افزودن کالا از انبار</div>
+      <div class="field"><select id="pos-item-select">${productOptions || '<option value="">کالایی موجود نیست</option>'}</select></div>
+      <div class="two-col">
+        <div class="field"><label>تعداد</label><input type="number" id="pos-qty" class="ltr" min="1" value="1"></div>
+        <div class="field" style="display:flex; align-items:flex-end;">
+          <button class="btn-primary btn-block" id="pos-add-btn">افزودن کالا به سبد</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div style="font-size:13px; font-weight:700; margin-bottom:10px;">افزودن خدمت (بدون کسر از انبار)</div>
+      <div class="field"><select id="pos-service-select">${serviceOptions || '<option value="">خدمتی ثبت نشده</option>'}</select></div>
+      <div class="two-col">
+        <div class="field"><label>تعداد</label><input type="number" id="pos-service-qty" class="ltr" min="1" value="1"></div>
+        <div class="field" style="display:flex; align-items:flex-end;">
+          <button class="btn-primary btn-block" id="pos-add-service-btn">افزودن خدمت به سبد</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div style="font-size:13px; font-weight:700; margin-bottom:10px;">افزودن خدمت چاپ یا طراحی (قیمت متغیر)</div>
+      <div class="field"><label>دسته</label>
+        <select id="pos-adhoc-category">
+          <option value="print">خدمات چاپ</option>
+          <option value="design">خدمات طراحی</option>
+        </select>
+      </div>
+      <div class="field"><label>شرح کار</label><input type="text" id="pos-adhoc-name" list="adhoc-name-datalist" placeholder="مثلاً: چاپ بنر ۳×۲ متر"><datalist id="adhoc-name-datalist">${nameDatalistOptions(txs.filter(t => t.kind === 'service').map(t => t.itemName))}</datalist></div>
+      <div class="two-col">
+        <div class="field"><label>هزینه</label><input type="text" inputmode="numeric" id="pos-adhoc-cost" class="ltr money-input"></div>
+        <div class="field"><label>فروش</label><input type="text" inputmode="numeric" id="pos-adhoc-sale" class="ltr money-input"></div>
+      </div>
+      <div class="two-col">
+        <div class="field"><label>تعداد</label><input type="number" id="pos-adhoc-qty" class="ltr" min="1" value="1"></div>
+        <div class="field" style="display:flex; align-items:flex-end;">
+          <button class="btn-primary btn-block" id="pos-add-adhoc-btn">افزودن به سبد</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title"><span>سبد خرید مشتری</span></div>
+    ${cart.length === 0 ? `
+      <div class="empty-state"><div class="big">🛒</div><p>سبد خرید خالی است.</p></div>
+    ` : `
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>مورد</th><th>تعداد</th><th>قیمت واحد</th><th>جمع</th><th></th></tr></thead>
+          <tbody>${cartRows}</tbody>
+        </table>
+      </div>
+    `}
+
+    <div class="panel" style="margin-top:14px;">
+      <div class="two-col">
+        <div class="field"><label>نام مشتری (اختیاری)</label>
+          <input type="text" id="pos-customer-name" list="pos-customer-datalist" placeholder="نام مشتری">
+          <datalist id="pos-customer-datalist">${customers.map(c => `<option value="${c.name}"></option>`).join('')}</datalist>
+        </div>
+        <div class="field"><label>شماره تماس (اختیاری)</label>
+          <input type="text" id="pos-customer-phone" class="ltr" placeholder="09xxxxxxxxx">
+        </div>
+      </div>
+      <div class="field"><label>نوع پرداخت</label>
+        <select id="pos-payment-type">
+          <option value="cash">نقدی</option>
+          <option value="transfer">واریز</option>
+          <option value="card">کارتخوان</option>
+          <option value="credit">نسیه (بدهی مشتری)</option>
+        </select>
+      </div>
+      <div class="hint-box">اگر نام یا شماره تماس وارد شود، به‌طور خودکار به لیست مشتریان اضافه یا (بر اساس شماره تماس) به مشتری موجود متصل می‌شود.</div>
+    </div>
+
+    <div class="panel" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+      <div>
+        <div class="stat-label">جمع فاکتور</div>
+        <div class="stat-value gold" style="font-size:22px;">${toman(cartTotal)}</div>
+      </div>
+      <div style="display:flex; gap:8px;">
+        <button class="btn-ghost" id="pos-clear-btn">پاک‌کردن سبد</button>
+        <button class="btn-primary" id="pos-checkout-btn">تکمیل و ثبت فروش</button>
+      </div>
+    </div>
+
+    <div class="section-title" style="margin-top:20px;"><span>آخرین فاکتورها</span></div>
+    ${recentInvoices.length === 0 ? `
+      <div class="empty-state"><div class="big">🧾</div><p>هنوز فاکتوری ثبت نشده است.</p></div>
+    ` : `
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>تاریخ</th><th>مشتری</th><th>نوع</th><th>اقلام</th><th>مبلغ کل</th><th>عملیات</th></tr></thead>
+          <tbody>${invoiceRows}</tbody>
+        </table>
+      </div>
+    `}
+  `;
+}
+
+function syncCustomerDisplay(){
+  if(typeof window.posBridge === 'undefined') return;
+  const lines = cart.map(l => ({ name: l.name, qty: l.qty, unitPrice: l.unitPrice, total: l.qty*l.unitPrice }));
+  const total = lines.reduce((s,l) => s + l.total, 0);
+  window.posBridge.sendCartUpdate({ lines, total });
+}
+
+function addToCart(itemId, qty){
+  const item = items.find(i => i.id === itemId);
+  if(!item || item.qty <= 0){ showToast('این کالا موجود نیست'); return; }
+  const existing = cart.find(c => c.itemId === itemId && c.kind === 'product');
+  const already = existing ? existing.qty : 0;
+  let addQty = qty;
+  if(already + addQty > item.qty){
+    addQty = item.qty - already;
+    if(addQty <= 0){ showToast('موجودی کافی برای این کالا در سبد نیست'); return; }
+    showToast(`فقط ${numFa(addQty)} عدد به دلیل محدودیت موجودی اضافه شد`);
+  }
+  if(existing) existing.qty += addQty;
+  else cart.push({ itemId, name: item.name, unitPrice: item.salePrice, qty: addQty, kind: 'product' });
+  syncCustomerDisplay();
+  renderMain();
+}
+
+function addServiceToCart(serviceId, qty){
+  const svc = services.find(s => s.id === serviceId);
+  if(!svc){ showToast('خدمتی برای افزودن انتخاب نشده'); return; }
+  const existing = cart.find(c => c.itemId === serviceId && c.kind === 'service');
+  if(existing) existing.qty += qty;
+  else cart.push({ itemId: svc.id, name: svc.name, unitPrice: serviceSalePrice(svc), cost: serviceCost(svc), category: serviceCategoryKey(svc), qty, kind: 'service' });
+  syncCustomerDisplay();
+  renderMain();
+}
+
+// چاپ/طراحی قیمت ثابت ندارند: هر بار به‌عنوان یک ردیف مستقل و تازه به سبد اضافه می‌شود (نه از فهرست خدمات)
+function addAdHocServiceToCart(category, name, cost, salePrice, qty){
+  cart.push({ itemId: uid(), name, unitPrice: salePrice, cost, category, qty, kind: 'service' });
+  syncCustomerDisplay();
+  renderMain();
+}
+
+function changeCartQty(itemId, kind, delta){
+  const line = cart.find(c => c.itemId === itemId && c.kind === kind);
+  if(!line) return;
+  const newQty = line.qty + delta;
+  if(newQty <= 0){
+    cart = cart.filter(c => !(c.itemId === itemId && c.kind === kind));
+  } else if(kind === 'product'){
+    const item = items.find(i => i.id === itemId);
+    if(item && newQty > item.qty){ showToast('بیشتر از موجودی انبار نمی‌توان افزود'); return; }
+    line.qty = newQty;
+  } else {
+    line.qty = newQty;
+  }
+  syncCustomerDisplay();
+  renderMain();
+}
+
+function removeCartLine(itemId, kind){
+  cart = cart.filter(c => !(c.itemId === itemId && c.kind === kind));
+  syncCustomerDisplay();
+  renderMain();
+}
+
+function resolveCustomerForSale(name, phone){
+  name = (name || '').trim();
+  phone = (phone || '').trim();
+  if(!name && !phone) return null;
+
+  let customer = null;
+  if(phone){
+    customer = customers.find(c => c.phone && c.phone.replace(/\s/g,'') === phone.replace(/\s/g,''));
+  }
+  if(!customer && name && !phone){
+    customer = customers.find(c => c.name === name);
+  }
+  if(customer){
+    if(name && (!customer.name || customer.name === 'مشتری بدون نام')) customer.name = name;
+    if(phone && !customer.phone) customer.phone = phone;
+    return customer;
+  }
+  const newCustomer = { id: uid(), name: name || 'مشتری بدون نام', phone: phone || '', address: '', createdDate: todayISO() };
+  customers.push(newCustomer);
+  return newCustomer;
+}
+
+async function finalizeSale(){
+  if(cart.length === 0){ showToast('سبد خرید خالی است'); return; }
+
+  const nameInput = document.getElementById('pos-customer-name');
+  const phoneInput = document.getElementById('pos-customer-phone');
+  const paymentTypeSelect = document.getElementById('pos-payment-type');
+  const typedName = nameInput ? nameInput.value.trim() : '';
+  const typedPhone = phoneInput ? phoneInput.value.trim() : '';
+  const paymentType = paymentTypeSelect ? paymentTypeSelect.value : 'cash';
+
+  if(paymentType === 'credit' && !typedName && !typedPhone){
+    showToast('برای ثبت فروش نسیه، نام یا شماره تماس مشتری را وارد کنید');
+    return;
+  }
+
+  const customer = resolveCustomerForSale(typedName, typedPhone);
+  const invoiceId = uid();
+  const date = todayISO();
+  const lines = [];
+
+  for(const l of cart){
+    if(l.kind === 'product'){
+      const item = items.find(i => i.id === l.itemId);
+      if(!item) continue;
+      const sellQty = Math.min(l.qty, item.qty);
+      if(sellQty <= 0) continue;
+      item.qty -= sellQty;
+      if(item.qty === 0) item.exitDate = date;
+      const lineTotal = sellQty * l.unitPrice;
+      txs.push({
+        id: uid(), date, type: 'sale', itemId: item.id, itemName: item.name, kind: 'product',
+        qty: sellQty, unitPrice: l.unitPrice, total: lineTotal,
+        cost: sellQty * item.purchasePrice, profit: sellQty * (l.unitPrice - item.purchasePrice),
+        invoiceId,
+        customerId: customer ? customer.id : null,
+        customerName: customer ? customer.name : 'مشتری مهمان',
+        customerPhone: customer ? (customer.phone || '') : ''
+      });
+      lines.push({ name: item.name, qty: sellQty, unitPrice: l.unitPrice, total: lineTotal, kind: 'product' });
+    } else {
+      const svc = services.find(s => s.id === l.itemId);
+      const unitCost = svc ? serviceCost(svc) : (l.cost || 0);
+      const category = svc ? serviceCategoryKey(svc) : (l.category || 'other');
+      const lineTotal = l.qty * l.unitPrice;
+      const lineCost = l.qty * unitCost;
+      txs.push({
+        id: uid(), date, type: 'sale', itemId: l.itemId, itemName: l.name, kind: 'service', category,
+        qty: l.qty, unitPrice: l.unitPrice, total: lineTotal,
+        cost: lineCost, profit: lineTotal - lineCost,
+        invoiceId,
+        customerId: customer ? customer.id : null,
+        customerName: customer ? customer.name : 'مشتری مهمان',
+        customerPhone: customer ? (customer.phone || '') : ''
+      });
+      lines.push({ name: l.name, qty: l.qty, unitPrice: l.unitPrice, total: lineTotal, kind: 'service' });
+    }
+  }
+  if(lines.length === 0){ showToast('امکان ثبت این فروش نبود، موجودی را بررسی کنید'); return; }
+
+  const total = lines.reduce((s,l) => s + l.total, 0);
+  const invoice = {
+    id: invoiceId, date, lines, total,
+    customerId: customer ? customer.id : null,
+    customerName: customer ? customer.name : 'مشتری مهمان',
+    customerPhone: customer ? (customer.phone || '') : '',
+    paymentType
+  };
+  invoices.push(invoice);
+  await saveItems(); await saveTx(); await saveInvoices(); await saveCustomers();
+  writeAutoBackup();
+  if(typeof window.posBridge !== 'undefined'){
+    window.posBridge.sendInvoice(invoice);
+    window.posBridge.sendCartUpdate({ lines: [], total: 0 });
+  }
+  cart = [];
+  showToast('فروش با موفقیت ثبت شد');
+  renderMain();
+}
+
+/* ===================== Services Tab ===================== */
+function renderServices(){
+  const sections = CATALOG_SERVICE_CATEGORIES.map(cat => {
+    const list = services.filter(s => serviceCategoryKey(s) === cat.key && matchesSearch(s.name, servicesSearchQuery));
+    const rows = list.map(s => {
+      const cost = serviceCost(s);
+      const salePrice = serviceSalePrice(s);
+      const profit = salePrice - cost;
+      return `
+        <tr>
+          <td>${s.name}</td>
+          <td>${toman(cost)}</td>
+          <td>${toman(salePrice)}</td>
+          <td class="${profit >= 0 ? 'stat-value green' : 'stat-value red'}" style="font-weight:700;">${toman(profit)}</td>
+          <td>
+            <div class="row-actions">
+              <button class="btn-ghost btn-sm" data-action="edit-service" data-id="${s.id}">ویرایش</button>
+              <button class="btn-danger btn-sm" data-action="delete-service" data-id="${s.id}">حذف</button>
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join('');
+
+    return `
+      <div class="section-title" style="margin-top:18px;"><span>${cat.label}</span></div>
+      ${list.length === 0 ? `
+        <div class="empty-state" style="padding:22px;">
+          <p>${servicesSearchQuery.trim() ? 'خدمتی مطابق جستجو در این دسته پیدا نشد.' : 'هنوز خدمتی در این دسته ثبت نشده است.'}</p>
+        </div>
+      ` : `
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>نام خدمت</th><th>هزینه</th><th>فروش</th><th>سود</th><th>عملیات</th></tr></thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>
+      `}
+    `;
+  }).join('');
+
+  return `
+    <div class="field" style="margin-top:4px;">
+      <input type="text" id="services-search" placeholder="🔍 جستجوی خدمت بر اساس نام..." value="${servicesSearchQuery}">
+    </div>
+    ${sections}
+    <div class="hint-box" style="margin-top:16px;">خدمات جزو انبار محسوب نمی‌شوند و موجودی ندارند؛ در صندوق فروش می‌توانید همراه یا مستقل از کالاها به فروش برسانید. خدمات چاپ و طراحی چون قیمت ثابتی ندارند، اینجا لیست نمی‌شوند و مستقیماً هنگام فروش در «صندوق فروش» با هزینه و قیمت دستی ثبت می‌شوند.</div>
+  `;
+}
+
+function serviceCategoryOptionsHtml(selectedKey){
+  return CATALOG_SERVICE_CATEGORIES.map(c => `<option value="${c.key}" ${c.key === selectedKey ? 'selected' : ''}>${c.label}</option>`).join('');
+}
+
+function openAddServiceModal(){
+  openModal(`
+    <div class="modal-title">افزودن خدمت جدید <button class="modal-close" id="modal-close">✕</button></div>
+    <div class="field"><label>دسته‌بندی</label><select id="sv-category">${serviceCategoryOptionsHtml('copy-print')}</select></div>
+    <div class="field"><label>نام خدمت</label><input type="text" id="sv-name" list="service-name-datalist" placeholder="مثلاً: پرینت رنگی A4"><datalist id="service-name-datalist">${nameDatalistOptions(services.map(s => s.name))}</datalist></div>
+    <div class="two-col">
+      <div class="field"><label>هزینه (تمام‌شده)</label><input type="text" inputmode="numeric" id="sv-cost" class="ltr money-input"></div>
+      <div class="field"><label>قیمت فروش</label><input type="text" inputmode="numeric" id="sv-sale" class="ltr money-input"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-ghost" id="cancel-sv">انصراف</button>
+      <button class="btn-primary" id="save-sv">ذخیره خدمت</button>
+    </div>
+  `);
+  bindMoneyInputFormatting();
+  document.getElementById('modal-close').onclick = closeModal;
+  document.getElementById('cancel-sv').onclick = closeModal;
+  document.getElementById('save-sv').onclick = async () => {
+    const category = document.getElementById('sv-category').value;
+    const name = document.getElementById('sv-name').value.trim();
+    const cost = parseMoneyInput('sv-cost');
+    const salePrice = parseMoneyInput('sv-sale');
+    if(!name || isNaN(cost) || cost < 0 || isNaN(salePrice) || salePrice < 0){
+      showToast('لطفاً همه فیلدها را به‌درستی وارد کنید');
+      return;
+    }
+    const dup = services.find(s => s.name.trim().toLowerCase() === name.toLowerCase());
+    if(dup){
+      showToast('خدمتی با این نام از قبل ثبت شده — برای تغییر از دکمه ویرایش همان خدمت استفاده کنید');
+      return;
+    }
+    services.push({ id: uid(), name, category, cost, salePrice, createdDate: todayISO() });
+    await saveServices();
+    closeModal();
+    showToast('خدمت با موفقیت اضافه شد');
+    renderMain();
+  };
+}
+
+function openEditServiceModal(serviceId){
+  const svc = services.find(s => s.id === serviceId);
+  if(!svc) return;
+  openModal(`
+    <div class="modal-title">ویرایش خدمت <button class="modal-close" id="modal-close">✕</button></div>
+    <div class="field"><label>دسته‌بندی</label><select id="esv-category">${serviceCategoryOptionsHtml(serviceCategoryKey(svc))}</select></div>
+    <div class="field"><label>نام خدمت</label><input type="text" id="esv-name" list="service-name-datalist" value="${svc.name}"><datalist id="service-name-datalist">${nameDatalistOptions(services.map(s => s.name))}</datalist></div>
+    <div class="two-col">
+      <div class="field"><label>هزینه (تمام‌شده)</label><input type="text" inputmode="numeric" id="esv-cost" class="ltr money-input" value="${formatMoneyInputValue(serviceCost(svc))}"></div>
+      <div class="field"><label>قیمت فروش</label><input type="text" inputmode="numeric" id="esv-sale" class="ltr money-input" value="${formatMoneyInputValue(serviceSalePrice(svc))}"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-ghost" id="cancel-edit-sv">انصراف</button>
+      <button class="btn-primary" id="save-edit-sv">ذخیره تغییرات</button>
+    </div>
+  `);
+  bindMoneyInputFormatting();
+  document.getElementById('modal-close').onclick = closeModal;
+  document.getElementById('cancel-edit-sv').onclick = closeModal;
+  document.getElementById('save-edit-sv').onclick = async () => {
+    const category = document.getElementById('esv-category').value;
+    const name = document.getElementById('esv-name').value.trim();
+    const cost = parseMoneyInput('esv-cost');
+    const salePrice = parseMoneyInput('esv-sale');
+    if(!name || isNaN(cost) || cost < 0 || isNaN(salePrice) || salePrice < 0){
+      showToast('لطفاً همه فیلدها را به‌درستی وارد کنید');
+      return;
+    }
+    svc.category = category;
+    svc.name = name;
+    svc.cost = cost;
+    svc.salePrice = salePrice;
+    delete svc.price;
+    await saveServices();
+    closeModal();
+    showToast('تغییرات خدمت ذخیره شد');
+    renderMain();
+  };
+}
+
+/* ===================== Customers Tab ===================== */
+function customerBalance(customerId){
+  let owed = 0;
+  invoices.forEach(inv => { if(inv.customerId === customerId && inv.paymentType === 'credit') owed += inv.total; });
+  txs.forEach(t => { if(t.type === 'payment' && t.customerId === customerId) owed -= t.total; });
+  return owed;
+}
+function customerTotalPurchases(customerId){
+  return invoices.filter(inv => inv.customerId === customerId).reduce((s,inv) => s + inv.total, 0);
+}
+function customerPrintOrders(customerId){
+  return txs.filter(t => t.type === 'sale' && t.kind === 'service' && t.category === 'print' && t.customerId === customerId)
+             .sort((a,b) => b.date.localeCompare(a.date));
+}
+
+function renderCustomers(){
+  return `
+    <div class="sub-tabs">
+      <div class="sub-tab ${crmSubView === 'list' ? 'active' : ''}" data-crmview="list">لیست مشتریان</div>
+      <div class="sub-tab ${crmSubView === 'reminders' ? 'active' : ''}" data-crmview="reminders">یادآوری‌ها</div>
+    </div>
+    ${crmSubView === 'reminders' ? renderRemindersView() : renderCustomerListView()}
+  `;
+}
+
+function renderCustomerListView(){
+  const filtered = customers.filter(c => matchesSearch(c.name, customersSearchQuery) || matchesSearch(c.phone, customersSearchQuery));
+  const rows = filtered.map(c => {
+    const bal = customerBalance(c.id);
+    const totalBuy = customerTotalPurchases(c.id);
+    return `
+      <tr>
+        <td>${c.name}</td>
+        <td class="ltr">${c.phone || '—'}</td>
+        <td>${toman(totalBuy)}</td>
+        <td class="${bal > 0 ? 'stat-value red' : ''}" style="font-weight:700;">${bal > 0 ? toman(bal) : 'بدون بدهی'}</td>
+        <td>
+          <div class="row-actions">
+            <button class="btn-ghost btn-sm" data-action="view-customer" data-id="${c.id}">مشاهده</button>
+            <button class="btn-ghost btn-sm" data-action="edit-customer" data-id="${c.id}">ویرایش</button>
+            <button class="btn-danger btn-sm" data-action="delete-customer" data-id="${c.id}">حذف</button>
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('');
+
+  const totalDebt = customers.reduce((s,c) => s + Math.max(0, customerBalance(c.id)), 0);
+
+  return `
+    <div class="cards-grid">
+      <div class="stat-card">
+        <div class="stat-label">تعداد مشتریان</div>
+        <div class="stat-value">${numFa(customers.length)}</div>
+      </div>
+      <div class="stat-card wide">
+        <div class="stat-label">جمع بدهی مشتریان</div>
+        <div class="stat-value ${totalDebt > 0 ? 'red' : 'green'}">${toman(totalDebt)}</div>
+      </div>
+    </div>
+
+    <div class="field" style="margin-top:4px;">
+      <input type="text" id="customers-search" placeholder="🔍 جستجوی مشتری بر اساس نام یا شماره تماس..." value="${customersSearchQuery}">
+    </div>
+
+    <div class="section-title"><span>لیست مشتریان</span></div>
+    ${customers.length === 0 ? `
+      <div class="empty-state">
+        <div class="big">👤</div>
+        <p>هنوز مشتری‌ای ثبت نشده است.<br>با دکمه + یک مشتری جدید اضافه کنید.</p>
+      </div>
+    ` : filtered.length === 0 ? `
+      <div class="empty-state">
+        <div class="big">🔍</div>
+        <p>مشتری‌ای با این مشخصات پیدا نشد.</p>
+      </div>
+    ` : `
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>نام</th><th>شماره تماس</th><th>جمع خرید</th><th>بدهی فعلی</th><th>عملیات</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    `}
+  `;
+}
+
+function renderRemindersView(){
+  const today = todayISO();
+  const active = reminders.filter(r => r.active).sort((a,b) => a.nextDueDate.localeCompare(b.nextDueDate));
+  const filtered = active.filter(r => matchesSearch(r.title, remindersSearchQuery) || matchesSearch(r.customerName, remindersSearchQuery) || matchesSearch(r.notes, remindersSearchQuery));
+
+  const searchBox = `
+    <div class="field" style="margin-top:4px; margin-bottom:14px;">
+      <input type="text" id="reminders-search" placeholder="🔍 جستجوی یادآوری بر اساس عنوان یا مشتری..." value="${remindersSearchQuery}">
+    </div>
+  `;
+
+  if(active.length === 0){
+    return `
+      <div class="empty-state">
+        <div class="big">🔔</div>
+        <p>هنوز یادآوری‌ای ثبت نشده است.<br>از داخل پروفایل هر مشتری می‌توانید یادآوری دوره‌ای اضافه کنید.</p>
+      </div>
+    `;
+  }
+  if(filtered.length === 0){
+    return `
+      ${searchBox}
+      <div class="empty-state">
+        <div class="big">🔍</div>
+        <p>یادآوری‌ای با این مشخصات پیدا نشد.</p>
+      </div>
+    `;
+  }
+
+  let lastDateKey = null;
+  const cards = filtered.map(r => {
+    const isOverdue = r.nextDueDate <= today;
+    let header = '';
+    if(r.nextDueDate !== lastDateKey){
+      lastDateKey = r.nextDueDate;
+      const weekday = new Intl.DateTimeFormat('fa-IR-u-ca-persian', { weekday: 'long' }).format(new Date(r.nextDueDate + 'T12:00:00'));
+      header = `<div class="reminder-day-header">${weekday} — ${jalaliDisplay(r.nextDueDate)}${isOverdue && r.nextDueDate < today ? ' (گذشته)' : ''}</div>`;
+    }
+    return `
+      ${header}
+      <div class="reminder-card ${isOverdue ? 'overdue' : ''}">
+        <div>
+          <div style="font-weight:700; font-size:13.5px;">${r.title}</div>
+          <div style="font-size:12px; color:var(--ink-dim); margin-top:3px;">${r.customerName} · هر ${numFa(r.frequencyDays)} روز${r.notes ? ' · ' + r.notes : ''}</div>
+        </div>
+        <div class="row-actions">
+          <button class="btn-ghost btn-sm" data-action="complete-reminder" data-id="${r.id}">تکمیل شد</button>
+          <button class="btn-ghost btn-sm" data-action="ics-reminder" data-id="${r.id}">افزودن به تقویم</button>
+          <button class="btn-ghost btn-sm" data-action="edit-reminder" data-id="${r.id}">ویرایش</button>
+          <button class="btn-danger btn-sm" data-action="delete-reminder" data-id="${r.id}">حذف</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  return `
+    <div class="section-title"><span>یادآوری‌های دوره‌ای</span></div>
+    <div class="hint-box" style="margin-bottom:14px;">وقتی برنامه باز است، سررسید هر یادآوری با یک هشدار تصویری و صدا نمایش داده می‌شود. برای افزودن یادآوری جدید، وارد پروفایل مشتری موردنظر شوید.</div>
+    ${cards}
+  `;
+}
+
+function openAddCustomerModal(){
+  openModal(`
+    <div class="modal-title">افزودن مشتری جدید <button class="modal-close" id="modal-close">✕</button></div>
+    <div class="field"><label>نام مشتری</label><input type="text" id="c-name" list="customer-name-datalist" placeholder="نام و نام خانوادگی"><datalist id="customer-name-datalist">${nameDatalistOptions(customers.map(c => c.name))}</datalist></div>
+    <div class="field"><label>شماره تماس (اختیاری)</label><input type="text" id="c-phone" class="ltr" placeholder="09xxxxxxxxx"></div>
+    <div class="field"><label>آدرس (اختیاری)</label><input type="text" id="c-address" placeholder="آدرس مشتری"></div>
+    <div class="modal-actions">
+      <button class="btn-ghost" id="cancel-cust">انصراف</button>
+      <button class="btn-primary" id="save-cust">ذخیره مشتری</button>
+    </div>
+  `);
+  document.getElementById('modal-close').onclick = closeModal;
+  document.getElementById('cancel-cust').onclick = closeModal;
+  document.getElementById('save-cust').onclick = async () => {
+    const name = document.getElementById('c-name').value.trim();
+    const phone = document.getElementById('c-phone').value.trim();
+    const address = document.getElementById('c-address').value.trim();
+    if(!name){ showToast('نام مشتری را وارد کنید'); return; }
+    if(phone){
+      const dup = customers.find(c => c.phone && c.phone.replace(/\s/g,'') === phone.replace(/\s/g,''));
+      if(dup){
+        showToast(`مشتری با این شماره تماس قبلاً با نام «${dup.name}» ثبت شده — از دکمه ویرایش همان مشتری استفاده کنید`);
+        return;
+      }
+    }
+    customers.push({ id: uid(), name, phone, address, createdDate: todayISO() });
+    await saveCustomers();
+    closeModal();
+    showToast('مشتری با موفقیت اضافه شد');
+    renderMain();
+  };
+}
+
+function openEditCustomerModal(customerId){
+  const c = customers.find(x => x.id === customerId);
+  if(!c) return;
+  openModal(`
+    <div class="modal-title">ویرایش مشتری <button class="modal-close" id="modal-close">✕</button></div>
+    <div class="field"><label>نام مشتری</label><input type="text" id="ec-name" list="customer-name-datalist" value="${c.name}"><datalist id="customer-name-datalist">${nameDatalistOptions(customers.map(x => x.name))}</datalist></div>
+    <div class="field"><label>شماره تماس (اختیاری)</label><input type="text" id="ec-phone" class="ltr" value="${c.phone || ''}"></div>
+    <div class="field"><label>آدرس (اختیاری)</label><input type="text" id="ec-address" value="${c.address || ''}"></div>
+    <div class="modal-actions">
+      <button class="btn-ghost" id="cancel-ec">انصراف</button>
+      <button class="btn-primary" id="save-ec">ذخیره تغییرات</button>
+    </div>
+  `);
+  document.getElementById('modal-close').onclick = closeModal;
+  document.getElementById('cancel-ec').onclick = closeModal;
+  document.getElementById('save-ec').onclick = async () => {
+    const name = document.getElementById('ec-name').value.trim();
+    const phone = document.getElementById('ec-phone').value.trim();
+    const address = document.getElementById('ec-address').value.trim();
+    if(!name){ showToast('نام مشتری را وارد کنید'); return; }
+    if(phone){
+      const dup = customers.find(x => x.id !== c.id && x.phone && x.phone.replace(/\s/g,'') === phone.replace(/\s/g,''));
+      if(dup){
+        showToast(`مشتری دیگری با این شماره تماس با نام «${dup.name}» ثبت شده است`);
+        return;
+      }
+    }
+    c.name = name; c.phone = phone; c.address = address;
+    await saveCustomers();
+    closeModal();
+    showToast('تغییرات مشتری ذخیره شد');
+    renderMain();
+  };
+}
+
+function openCustomerDetail(customerId){
+  const c = customers.find(x => x.id === customerId);
+  if(!c) return;
+  const custInvoices = [...invoices].filter(inv => inv.customerId === customerId).sort((a,b) => b.date.localeCompare(a.date));
+  const custPayments = txs.filter(t => t.type === 'payment' && t.customerId === customerId).sort((a,b) => b.date.localeCompare(a.date));
+  const printOrders = customerPrintOrders(customerId);
+  const custReminders = reminders.filter(r => r.customerId === customerId).sort((a,b) => a.nextDueDate.localeCompare(b.nextDueDate));
+  const balance = customerBalance(customerId);
+
+  const invRows = custInvoices.map(inv => `
+    <tr>
+      <td>${jalaliDisplay(inv.date)}</td>
+      <td>${numFa(inv.lines.length)} قلم</td>
+      <td><span class="badge ${paymentTypeBadgeClass(inv.paymentType)}">${paymentTypeLabel(inv.paymentType)}</span></td>
+      <td>${toman(inv.total)}</td>
+      <td><button class="btn-danger btn-sm" data-action="delete-invoice" data-id="${inv.id}">حذف</button></td>
+    </tr>
+  `).join('') || `<tr><td colspan="5" style="text-align:center; color:var(--ink-faint);">فاکتوری ثبت نشده</td></tr>`;
+
+  const payRows = custPayments.map(p => `
+    <tr><td>${jalaliDisplay(p.date)}</td><td>${toman(p.total)}</td><td><button class="btn-danger btn-sm" data-action="delete-tx" data-id="${p.id}">حذف</button></td></tr>
+  `).join('') || `<tr><td colspan="3" style="text-align:center; color:var(--ink-faint);">پرداختی ثبت نشده</td></tr>`;
+
+  const printRows = printOrders.map(t => `
+    <tr>
+      <td>${jalaliDisplay(t.date)}</td>
+      <td>${t.itemName}</td>
+      <td>${numFa(t.qty)}</td>
+      <td>${toman(t.total)}</td>
+      <td><button class="btn-danger btn-sm" data-action="delete-tx" data-id="${t.id}">حذف</button></td>
+    </tr>
+  `).join('') || `<tr><td colspan="5" style="text-align:center; color:var(--ink-faint);">سفارش چاپی ثبت نشده</td></tr>`;
+
+  const today = todayISO();
+  const reminderRows = custReminders.map(r => `
+    <div class="reminder-card ${r.active && r.nextDueDate <= today ? 'overdue' : ''}" style="margin-bottom:8px;">
+      <div>
+        <div style="font-weight:700; font-size:13px;">${r.title}${!r.active ? ' <span class="badge sold-out">غیرفعال</span>' : ''}</div>
+        <div style="font-size:11.5px; color:var(--ink-dim); margin-top:3px;">سررسید بعدی: ${jalaliDisplay(r.nextDueDate)} · هر ${numFa(r.frequencyDays)} روز${r.notes ? ' · ' + r.notes : ''}</div>
+      </div>
+      <div class="row-actions">
+        <button class="btn-ghost btn-sm" data-action="edit-reminder" data-id="${r.id}">ویرایش</button>
+        <button class="btn-danger btn-sm" data-action="delete-reminder" data-id="${r.id}">حذف</button>
+      </div>
+    </div>
+  `).join('') || `<div class="hint-box">یادآوری‌ای برای این مشتری ثبت نشده است.</div>`;
+
+  openModal(`
+    <div class="modal-title">${c.name} <button class="modal-close" id="modal-close">✕</button></div>
+    <div class="hint-box" style="margin-top:0;">
+      ${c.phone ? `تماس: ${c.phone}<br>` : ''}${c.address ? `آدرس: ${c.address}` : (!c.phone ? 'اطلاعات تماسی ثبت نشده' : '')}
+    </div>
+    <div class="stat-card" style="margin:14px 0;">
+      <div class="stat-label">بدهی فعلی</div>
+      <div class="stat-value ${balance > 0 ? 'red' : 'green'}" style="font-size:20px;">${balance > 0 ? toman(balance) : 'بدون بدهی'}</div>
+    </div>
+
+    <div style="font-size:13px; font-weight:700; margin-bottom:8px;">فاکتورهای خرید</div>
+    <div class="table-wrap" style="margin-bottom:16px;">
+      <table><thead><tr><th>تاریخ</th><th>اقلام</th><th>نوع</th><th>مبلغ</th><th>عملیات</th></tr></thead><tbody>${invRows}</tbody></table>
+    </div>
+
+    <div style="font-size:13px; font-weight:700; margin-bottom:8px;">پرداخت‌های ثبت‌شده</div>
+    <div class="table-wrap" style="margin-bottom:16px;">
+      <table><thead><tr><th>تاریخ</th><th>مبلغ</th><th>عملیات</th></tr></thead><tbody>${payRows}</tbody></table>
+    </div>
+
+    <div style="font-size:13px; font-weight:700; margin-bottom:8px;">سفارش‌های خدمات چاپ</div>
+    <div class="table-wrap" style="margin-bottom:16px;">
+      <table><thead><tr><th>تاریخ</th><th>نام خدمت</th><th>تعداد</th><th>مبلغ</th><th>عملیات</th></tr></thead><tbody>${printRows}</tbody></table>
+    </div>
+
+    <div style="font-size:13px; font-weight:700; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
+      <span>یادآوری‌های دوره‌ای سفارش</span>
+      <button class="btn-ghost btn-sm" id="add-reminder-btn" data-customer-id="${c.id}">افزودن یادآوری</button>
+    </div>
+    <div style="margin-bottom:16px;">${reminderRows}</div>
+
+    ${balance > 0 ? `
+      <div class="field"><label>ثبت پرداخت جدید</label><input type="text" inputmode="numeric" id="pay-amount" class="ltr money-input" placeholder="مبلغ دریافتی"></div>
+      <button class="btn-primary btn-block" id="save-payment-btn">ثبت پرداخت</button>
+    ` : ''}
+    <div class="modal-actions" style="margin-top:12px;">
+      <button class="btn-ghost btn-block" id="close-detail-btn">بستن</button>
+    </div>
+  `);
+  bindMoneyInputFormatting();
+  document.getElementById('modal-close').onclick = closeModal;
+  document.getElementById('close-detail-btn').onclick = closeModal;
+  document.getElementById('add-reminder-btn').onclick = () => openAddReminderModal(c.id);
+  document.querySelectorAll('[data-action="edit-reminder"]').forEach(b => b.onclick = () => openEditReminderModal(b.dataset.id));
+  document.querySelectorAll('[data-action="delete-reminder"]').forEach(b => {
+    b.onclick = () => {
+      confirmAction('این یادآوری حذف شود؟', async () => {
+        reminders = reminders.filter(r => r.id !== b.dataset.id);
+        await saveReminders();
+        closeModal();
+        openCustomerDetail(customerId);
+        showToast('یادآوری حذف شد');
+      });
+    };
+  });
+  document.querySelectorAll('[data-action="delete-invoice"]').forEach(b => {
+    b.onclick = () => requestEditPin(() => {
+      confirmAction('این فاکتور و تراکنش‌های مربوط به آن برای همیشه حذف شوند؟ موجودی انبار کالاهای آن به‌طور خودکار اصلاح می‌شود.', async () => {
+        await deleteInvoice(b.dataset.id);
+        openCustomerDetail(customerId);
+      });
+    });
+  });
+  document.querySelectorAll('[data-action="delete-tx"]').forEach(b => {
+    b.onclick = () => requestEditPin(() => {
+      confirmAction('این تراکنش برای همیشه حذف شود؟ در صورت مربوط بودن به کالا، موجودی انبار متناسب اصلاح می‌شود.', async () => {
+        await deleteTransaction(b.dataset.id);
+        openCustomerDetail(customerId);
+      });
+    });
+  });
+  const payBtn = document.getElementById('save-payment-btn');
+  if(payBtn){
+    payBtn.onclick = async () => {
+      const amount = parseMoneyInput('pay-amount');
+      if(!amount || amount <= 0){ showToast('مبلغ نامعتبر است'); return; }
+      const finalAmount = Math.min(amount, balance);
+      txs.push({
+        id: uid(), date: todayISO(), type: 'payment', customerId: c.id, customerName: c.name, customerPhone: c.phone || '',
+        itemId: null, itemName: `تسویه بدهی - ${c.name}`, qty: null, unitPrice: null,
+        total: finalAmount, cost: 0, profit: 0
+      });
+      await saveTx();
+      closeModal();
+      showToast('پرداخت با موفقیت ثبت شد');
+      renderMain();
+    };
+  }
+}
+
+/* ===================== Reminders (recurring order reminders) ===================== */
+const REMINDER_FREQUENCIES = [
+  { key: '7', label: 'هفتگی' },
+  { key: '14', label: 'دوهفته‌ای' },
+  { key: '30', label: 'ماهانه' },
+  { key: '60', label: 'هر ۲ ماه' },
+  { key: '90', label: 'هر ۳ ماه' },
+  { key: '180', label: 'هر ۶ ماه' },
+  { key: '365', label: 'سالانه' },
+  { key: 'custom', label: 'سفارشی (روز)' }
+];
+
+function reminderFrequencyOptionsHtml(){
+  return REMINDER_FREQUENCIES.map(f => `<option value="${f.key}">${f.label}</option>`).join('');
+}
+
+function openAddReminderModal(customerId){
+  const c = customers.find(x => x.id === customerId);
+  if(!c) return;
+  const printHistory = customerPrintOrders(customerId).slice(0, 15);
+  const historyOptions = printHistory.map(t => `<option value="${t.id}">${t.itemName} — ${jalaliDisplay(t.date)}</option>`).join('');
+
+  openModal(`
+    <div class="modal-title">افزودن یادآوری برای ${c.name} <button class="modal-close" id="modal-close">✕</button></div>
+    ${printHistory.length > 0 ? `
+      <div class="field"><label>پرکردن خودکار از سفارش چاپ قبلی (اختیاری)</label>
+        <select id="rm-from-history"><option value="">— انتخاب نکنید —</option>${historyOptions}</select>
+      </div>
+    ` : ''}
+    <div class="field"><label>عنوان یادآوری</label><input type="text" id="rm-title" list="reminder-title-datalist" placeholder="مثلاً: سفارش مجدد کارت ویزیت"><datalist id="reminder-title-datalist">${nameDatalistOptions(reminders.map(r => r.title))}</datalist></div>
+    <div class="field"><label>یادداشت (اختیاری)</label><input type="text" id="rm-notes" placeholder="جزئیات سفارش"></div>
+    <div class="two-col">
+      <div class="field"><label>دوره تکرار</label><select id="rm-freq">${reminderFrequencyOptionsHtml()}</select></div>
+      <div class="field" id="rm-custom-wrap" style="display:none;"><label>تعداد روز</label><input type="number" id="rm-custom-days" class="ltr" min="1" value="30"></div>
+    </div>
+    <div class="field"><label>تاریخ سررسید بعدی</label><input type="date" id="rm-due" class="ltr" value="${todayISO()}"></div>
+    <div class="modal-actions">
+      <button class="btn-ghost" id="cancel-rm">انصراف</button>
+      <button class="btn-primary" id="save-rm">ذخیره یادآوری</button>
+    </div>
+  `);
+  document.getElementById('modal-close').onclick = closeModal;
+  document.getElementById('cancel-rm').onclick = closeModal;
+
+  const freqSelect = document.getElementById('rm-freq');
+  const customWrap = document.getElementById('rm-custom-wrap');
+  freqSelect.onchange = () => { customWrap.style.display = freqSelect.value === 'custom' ? 'block' : 'none'; };
+
+  const historySelect = document.getElementById('rm-from-history');
+  if(historySelect){
+    historySelect.onchange = () => {
+      const tx = printHistory.find(t => t.id === historySelect.value);
+      if(tx){
+        document.getElementById('rm-title').value = `سفارش مجدد: ${tx.itemName}`;
+        document.getElementById('rm-notes').value = `تعداد قبلی: ${tx.qty} — آخرین سفارش: ${jalaliDisplay(tx.date)}`;
+      }
+    };
+  }
+
+  document.getElementById('save-rm').onclick = async () => {
+    const title = document.getElementById('rm-title').value.trim();
+    const notes = document.getElementById('rm-notes').value.trim();
+    const freqVal = freqSelect.value;
+    const frequencyDays = freqVal === 'custom' ? parseInt(document.getElementById('rm-custom-days').value, 10) : parseInt(freqVal, 10);
+    const nextDueDate = document.getElementById('rm-due').value;
+    if(!title || !frequencyDays || frequencyDays < 1 || !nextDueDate){
+      showToast('لطفاً همه فیلدها را به‌درستی پر کنید');
+      return;
+    }
+    reminders.push({
+      id: uid(), customerId: c.id, customerName: c.name,
+      title, notes, frequencyDays, nextDueDate, active: true,
+      lastAlarmedDate: null, createdDate: todayISO()
+    });
+    await saveReminders();
+    closeModal();
+    openCustomerDetail(c.id);
+    showToast('یادآوری با موفقیت اضافه شد');
+  };
+}
+
+function openEditReminderModal(reminderId){
+  const r = reminders.find(x => x.id === reminderId);
+  if(!r) return;
+  const presetMatch = REMINDER_FREQUENCIES.find(f => f.key === String(r.frequencyDays));
+  const freqValue = presetMatch ? presetMatch.key : 'custom';
+
+  openModal(`
+    <div class="modal-title">ویرایش یادآوری <button class="modal-close" id="modal-close">✕</button></div>
+    <div class="field"><label>عنوان یادآوری</label><input type="text" id="erm-title" list="reminder-title-datalist" value="${r.title}"><datalist id="reminder-title-datalist">${nameDatalistOptions(reminders.map(x => x.title))}</datalist></div>
+    <div class="field"><label>یادداشت (اختیاری)</label><input type="text" id="erm-notes" value="${r.notes || ''}"></div>
+    <div class="two-col">
+      <div class="field"><label>دوره تکرار</label><select id="erm-freq">${reminderFrequencyOptionsHtml()}</select></div>
+      <div class="field" id="erm-custom-wrap" style="display:${freqValue === 'custom' ? 'block' : 'none'};"><label>تعداد روز</label><input type="number" id="erm-custom-days" class="ltr" min="1" value="${r.frequencyDays}"></div>
+    </div>
+    <div class="field"><label>تاریخ سررسید بعدی</label><input type="date" id="erm-due" class="ltr" value="${r.nextDueDate}"></div>
+    <label style="display:flex; align-items:center; gap:8px; font-size:12.5px; color:var(--ink-dim); margin-bottom:14px; cursor:pointer;">
+      <input type="checkbox" id="erm-active" style="width:auto;" ${r.active ? 'checked' : ''}> یادآوری فعال باشد
+    </label>
+    <div class="modal-actions">
+      <button class="btn-ghost" id="cancel-erm">انصراف</button>
+      <button class="btn-primary" id="save-erm">ذخیره تغییرات</button>
+    </div>
+  `);
+  document.getElementById('modal-close').onclick = closeModal;
+  document.getElementById('cancel-erm').onclick = closeModal;
+  const freqSelect = document.getElementById('erm-freq');
+  freqSelect.value = freqValue;
+  const customWrap = document.getElementById('erm-custom-wrap');
+  freqSelect.onchange = () => { customWrap.style.display = freqSelect.value === 'custom' ? 'block' : 'none'; };
+
+  document.getElementById('save-erm').onclick = async () => {
+    const title = document.getElementById('erm-title').value.trim();
+    const notes = document.getElementById('erm-notes').value.trim();
+    const freqVal = freqSelect.value;
+    const frequencyDays = freqVal === 'custom' ? parseInt(document.getElementById('erm-custom-days').value, 10) : parseInt(freqVal, 10);
+    const nextDueDate = document.getElementById('erm-due').value;
+    const active = document.getElementById('erm-active').checked;
+    if(!title || !frequencyDays || frequencyDays < 1 || !nextDueDate){
+      showToast('لطفاً همه فیلدها را به‌درستی پر کنید');
+      return;
+    }
+    r.title = title; r.notes = notes; r.frequencyDays = frequencyDays; r.nextDueDate = nextDueDate; r.active = active;
+    await saveReminders();
+    closeModal();
+    showToast('تغییرات یادآوری ذخیره شد');
+    renderMain();
+  };
+}
+
+function addDaysISO(iso, days){
+  const d = new Date(iso + 'T12:00:00');
+  d.setDate(d.getDate() + days);
+  return d.toISOString().slice(0, 10);
+}
+
+async function completeReminder(reminderId){
+  const r = reminders.find(x => x.id === reminderId);
+  if(!r) return;
+  r.nextDueDate = addDaysISO(todayISO(), r.frequencyDays);
+  r.lastAlarmedDate = null;
+  await saveReminders();
+  renderMain();
+  showToast('یادآوری تکمیل شد و سررسید بعدی تنظیم شد');
+}
+
+function icsEscape(s){
+  return String(s || '').replace(/[,;]/g, '\\$&').replace(/\n/g, '\\n');
+}
+
+function downloadReminderICS(reminderId){
+  const r = reminders.find(x => x.id === reminderId);
+  if(!r) return;
+  const dt = r.nextDueDate.replace(/-/g, '');
+  const ics = [
+    'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//BabakSystem//Reminder//FA', 'BEGIN:VEVENT',
+    `UID:${r.id}@babaksystem`, `DTSTART;VALUE=DATE:${dt}`,
+    `RRULE:FREQ=DAILY;INTERVAL=${r.frequencyDays}`,
+    `SUMMARY:${icsEscape(r.title + ' - ' + r.customerName)}`,
+    `DESCRIPTION:${icsEscape(r.notes)}`,
+    'END:VEVENT', 'END:VCALENDAR'
+  ].join('\r\n');
+  const blob = new Blob([ics], { type: 'text/calendar' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `reminder-${r.id}.ics`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('فایل تقویم دانلود شد');
+}
+
+/* ---- Visual + audio alarm for due reminders ---- */
+function playAlarmBeep(times){
+  try{
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if(!AudioCtx) return;
+    const ctx = new AudioCtx();
+    let i = 0;
+    function beepOnce(){
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.type = 'sine';
+      o.frequency.value = 880;
+      g.gain.value = 0.25;
+      o.connect(g); g.connect(ctx.destination);
+      o.start();
+      setTimeout(() => { o.stop(); }, 220);
+      i++;
+      if(i < times) setTimeout(beepOnce, 350);
+    }
+    beepOnce();
+  }catch(e){}
+}
+
+async function checkReminderAlarms(){
+  if(document.getElementById('modal-overlay').classList.contains('open')) return; // don't interrupt an open modal
+  const today = todayISO();
+  const due = reminders.find(r => r.active && r.nextDueDate <= today && r.lastAlarmedDate !== today);
+  if(!due) return;
+  due.lastAlarmedDate = today;
+  await saveReminders();
+  triggerAlarmModal(due);
+  playAlarmBeep(3);
+}
+
+function triggerAlarmModal(reminder){
+  openModal(`
+    <div class="alarm-bell">🔔</div>
+    <div class="modal-title" style="justify-content:center; text-align:center;">یادآوری سفارش مشتری</div>
+    <div style="text-align:center; margin-bottom:16px;">
+      <div style="font-size:15px; font-weight:700;">${reminder.customerName}</div>
+      <div style="font-size:14px; color:var(--gold); margin-top:6px;">${reminder.title}</div>
+      ${reminder.notes ? `<div style="font-size:12.5px; color:var(--ink-dim); margin-top:6px;">${reminder.notes}</div>` : ''}
+    </div>
+    <div class="modal-actions">
+      <button class="btn-ghost" id="alarm-snooze">بعداً</button>
+      <button class="btn-danger" id="alarm-disable">غیرفعال کردن</button>
+      <button class="btn-primary" id="alarm-done">تکمیل شد</button>
+    </div>
+  `);
+  document.getElementById('modal-card').classList.add('alarm-card');
+  document.getElementById('alarm-snooze').onclick = () => { closeModal(); };
+  document.getElementById('alarm-disable').onclick = async () => {
+    reminder.active = false;
+    await saveReminders();
+    closeModal();
+    showToast('یادآوری غیرفعال شد');
+  };
+  document.getElementById('alarm-done').onclick = async () => {
+    await completeReminder(reminder.id);
+    closeModal();
+  };
+}
+
+/* ===================== Inventory Tab ===================== */
+function renderInventory(){
+  const inStock = items.filter(it => it.qty > 0);
+  const totalPurchase = inStock.reduce((s,it) => s + it.qty * it.purchasePrice, 0);
+  const totalSale = inStock.reduce((s,it) => s + it.qty * it.salePrice, 0);
+  const potentialProfit = totalSale - totalPurchase;
+  const totalUnits = inStock.reduce((s,it) => s + it.qty, 0);
+
+  const list = showSoldOut ? items : inStock;
+  const sorted = [...list].sort((a,b) => (b.entryDate||'').localeCompare(a.entryDate||''));
+  const filtered = sorted.filter(it => matchesSearch(it.name, inventorySearchQuery));
+
+  const rows = filtered.map(it => {
+    const status = it.qty > 0
+      ? `<span class="badge in-stock">در انبار</span>`
+      : `<span class="badge sold-out">خارج شده</span>`;
+    return `
+      <tr>
+        <td>${it.name}</td>
+        <td>${numFa(it.qty)}</td>
+        <td>${toman(it.purchasePrice)}</td>
+        <td>${toman(it.salePrice)}</td>
+        <td>${toman(it.qty * it.purchasePrice)}</td>
+        <td>${toman(it.qty * it.salePrice)}</td>
+        <td>${jalaliDisplay(it.purchaseDate)}</td>
+        <td>${jalaliDisplay(it.entryDate)}</td>
+        <td>${jalaliDisplay(it.exitDate)}</td>
+        <td>${status}</td>
+        <td>
+          <div class="row-actions">
+            <button class="btn-ghost btn-sm" data-action="edit-item" data-id="${it.id}">ویرایش</button>
+            <button class="btn-danger btn-sm" data-action="delete-item" data-id="${it.id}">حذف</button>
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('');
+
+  return `
+    <div class="cards-grid">
+      <div class="stat-card">
+        <div class="stat-label">اقلام موجود</div>
+        <div class="stat-value">${numFa(totalUnits)}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">جمع قیمت خرید انبار</div>
+        <div class="stat-value">${toman(totalPurchase)}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">جمع قیمت فروش انبار</div>
+        <div class="stat-value gold">${toman(totalSale)}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">سود بالقوه انبار</div>
+        <div class="stat-value ${potentialProfit >= 0 ? 'green' : 'red'}">${toman(potentialProfit)}</div>
+      </div>
+    </div>
+
+    <div class="field" style="margin-top:4px;">
+      <input type="text" id="inventory-search" placeholder="🔍 جستجوی کالا بر اساس نام..." value="${inventorySearchQuery}">
+    </div>
+
+    <div class="section-title">
+      <span>لیست کالاها</span>
+      <label style="display:flex; align-items:center; gap:6px; font-size:12px; color:var(--ink-dim); cursor:pointer;">
+        <input type="checkbox" id="toggle-soldout" style="width:auto;" ${showSoldOut ? 'checked' : ''}> نمایش کالاهای خارج‌شده
+      </label>
+    </div>
+
+    ${sorted.length === 0 ? `
+      <div class="empty-state">
+        <div class="big">📦</div>
+        <p>هنوز کالایی ثبت نشده است.<br>با دکمه + یک کالای جدید اضافه کنید.</p>
+      </div>
+    ` : filtered.length === 0 ? `
+      <div class="empty-state">
+        <div class="big">🔍</div>
+        <p>کالایی با این نام پیدا نشد.</p>
+      </div>
+    ` : `
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th>کالا</th><th>تعداد</th><th>قیمت خرید</th><th>قیمت فروش</th>
+            <th>جمع خرید</th><th>جمع فروش</th><th>تاریخ خرید</th><th>تاریخ ورود</th>
+            <th>تاریخ خروج</th><th>وضعیت</th><th>عملیات</th>
+          </tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    `}
+  `;
+}
+
+function openAddItemModal(){
+  const today = todayISO();
+  openModal(`
+    <div class="modal-title">افزودن کالای جدید <button class="modal-close" id="modal-close">✕</button></div>
+    <div class="field"><label>نام کالا</label><input type="text" id="f-name" list="item-name-datalist" placeholder="مثلاً: روغن موتور ۴ لیتری"><datalist id="item-name-datalist">${nameDatalistOptions(items.map(i => i.name))}</datalist></div>
+    <div class="two-col">
+      <div class="field"><label>تعداد</label><input type="number" id="f-qty" class="ltr" min="1" value="1"></div>
+      <div class="field"><label>قیمت خرید (واحد)</label><input type="text" inputmode="numeric" id="f-pp" class="ltr money-input"></div>
+    </div>
+    <div class="field"><label>قیمت فروش (واحد)</label><input type="text" inputmode="numeric" id="f-sp" class="ltr money-input"></div>
+    <div class="two-col">
+      <div class="field"><label>تاریخ خرید</label><input type="date" id="f-pdate" class="ltr" value="${today}"></div>
+      <div class="field"><label>تاریخ ورود به انبار</label><input type="date" id="f-edate" class="ltr" value="${today}"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-ghost" id="cancel-add">انصراف</button>
+      <button class="btn-primary" id="save-add">ذخیره کالا</button>
+    </div>
+  `);
+  bindMoneyInputFormatting();
+  document.getElementById('modal-close').onclick = closeModal;
+  document.getElementById('cancel-add').onclick = closeModal;
+  document.getElementById('save-add').onclick = async () => {
+    const name = document.getElementById('f-name').value.trim();
+    const qty = parseInt(document.getElementById('f-qty').value, 10);
+    const pp = parseMoneyInput('f-pp');
+    const sp = parseMoneyInput('f-sp');
+    const pdate = document.getElementById('f-pdate').value;
+    const edate = document.getElementById('f-edate').value;
+    if(!name || !qty || qty < 1 || isNaN(pp) || isNaN(sp) || !pdate || !edate){
+      showToast('لطفاً همه فیلدها را به‌درستی پر کنید');
+      return;
+    }
+    const dup = items.find(i => i.name.trim().toLowerCase() === name.toLowerCase());
+    if(dup){
+      showToast('کالایی با این نام از قبل در انبار موجود است — برای افزایش موجودی از دکمه ویرایش همان کالا استفاده کنید');
+      return;
+    }
+    const item = { id: uid(), name, qty, purchasePrice: pp, salePrice: sp, purchaseDate: pdate, entryDate: edate, exitDate: null };
+    items.push(item);
+    txs.push({ id: uid(), date: pdate, type: 'purchase', itemId: item.id, itemName: name, qty, unitPrice: pp, total: qty*pp, cost: 0, profit: 0 });
+    await saveItems(); await saveTx();
+    closeModal();
+    showToast('کالا با موفقیت اضافه شد');
+    renderMain();
+  };
+}
+
+function openEditItemModal(itemId){
+  const item = items.find(i => i.id === itemId);
+  if(!item) return;
+  openModal(`
+    <div class="modal-title">ویرایش کالا <button class="modal-close" id="modal-close">✕</button></div>
+    <div class="field"><label>نام کالا</label><input type="text" id="ef-name" list="item-name-datalist" value="${item.name}"><datalist id="item-name-datalist">${nameDatalistOptions(items.map(i => i.name))}</datalist></div>
+    <div class="two-col">
+      <div class="field"><label>تعداد فعلی</label><input type="number" id="ef-qty" class="ltr" min="0" value="${item.qty}"></div>
+      <div class="field"><label>قیمت خرید (واحد)</label><input type="text" inputmode="numeric" id="ef-pp" class="ltr money-input" value="${formatMoneyInputValue(item.purchasePrice)}"></div>
+    </div>
+    <div class="field"><label>قیمت فروش (واحد)</label><input type="text" inputmode="numeric" id="ef-sp" class="ltr money-input" value="${formatMoneyInputValue(item.salePrice)}"></div>
+    <div class="two-col">
+      <div class="field"><label>تاریخ خرید</label><input type="date" id="ef-pdate" class="ltr" value="${item.purchaseDate || ''}"></div>
+      <div class="field"><label>تاریخ ورود به انبار</label><input type="date" id="ef-edate" class="ltr" value="${item.entryDate || ''}"></div>
+    </div>
+    <div class="hint-box">تغییر این مقادیر، تراکنش‌های قبلی ثبت‌شده در گردش حساب را تغییر نمی‌دهد؛ فقط اطلاعات فعلی کالا در انبار به‌روزرسانی می‌شود.</div>
+    <div class="modal-actions" style="margin-top:12px;">
+      <button class="btn-ghost" id="cancel-edit-item">انصراف</button>
+      <button class="btn-primary" id="save-edit-item">ذخیره تغییرات</button>
+    </div>
+  `);
+  bindMoneyInputFormatting();
+  document.getElementById('modal-close').onclick = closeModal;
+  document.getElementById('cancel-edit-item').onclick = closeModal;
+  document.getElementById('save-edit-item').onclick = async () => {
+    const name = document.getElementById('ef-name').value.trim();
+    const qty = parseInt(document.getElementById('ef-qty').value, 10);
+    const pp = parseMoneyInput('ef-pp');
+    const sp = parseMoneyInput('ef-sp');
+    const pdate = document.getElementById('ef-pdate').value;
+    const edate = document.getElementById('ef-edate').value;
+    if(!name || isNaN(qty) || qty < 0 || isNaN(pp) || isNaN(sp) || !pdate || !edate){
+      showToast('لطفاً همه فیلدها را به‌درستی پر کنید');
+      return;
+    }
+    item.name = name;
+    item.qty = qty;
+    item.purchasePrice = pp;
+    item.salePrice = sp;
+    item.purchaseDate = pdate;
+    item.entryDate = edate;
+    if(qty === 0 && !item.exitDate) item.exitDate = todayISO();
+    if(qty > 0) item.exitDate = null;
+    await saveItems();
+    closeModal();
+    showToast('تغییرات کالا ذخیره شد');
+    renderMain();
+  };
+}
+
+function openSellModal(itemId){
+  const item = items.find(i => i.id === itemId);
+  if(!item) return;
+  openModal(`
+    <div class="modal-title">ثبت فروش — ${item.name} <button class="modal-close" id="modal-close">✕</button></div>
+    <div class="hint-box">موجودی فعلی: ${numFa(item.qty)} عدد</div>
+    <div class="field" style="margin-top:14px;"><label>تعداد فروش</label><input type="number" id="s-qty" class="ltr" min="1" max="${item.qty}" value="${item.qty}"></div>
+    <div class="two-col">
+      <div class="field"><label>قیمت فروش (واحد)</label><input type="text" inputmode="numeric" id="s-price" class="ltr money-input" value="${formatMoneyInputValue(item.salePrice)}"></div>
+      <div class="field"><label>تاریخ خروج از انبار</label><input type="date" id="s-date" class="ltr" value="${todayISO()}"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-ghost" id="cancel-sell">انصراف</button>
+      <button class="btn-primary" id="save-sell">ثبت فروش</button>
+    </div>
+  `);
+  bindMoneyInputFormatting();
+  document.getElementById('modal-close').onclick = closeModal;
+  document.getElementById('cancel-sell').onclick = closeModal;
+  document.getElementById('save-sell').onclick = async () => {
+    const qty = parseInt(document.getElementById('s-qty').value, 10);
+    const price = parseMoneyInput('s-price');
+    const date = document.getElementById('s-date').value;
+    if(!qty || qty < 1 || qty > item.qty || isNaN(price) || !date){
+      showToast('مقادیر واردشده نامعتبر است');
+      return;
+    }
+    item.qty -= qty;
+    if(item.qty === 0) item.exitDate = date;
+    txs.push({
+      id: uid(), date, type: 'sale', itemId: item.id, itemName: item.name,
+      qty, unitPrice: price, total: qty*price,
+      cost: qty*item.purchasePrice, profit: qty*(price - item.purchasePrice)
+    });
+    await saveItems(); await saveTx();
+    closeModal();
+    showToast('فروش ثبت شد');
+    renderMain();
+  };
+}
+
+/* ===================== Ledger Tab ===================== */
+function renderLedger(){
+  const sorted = [...txs].sort((a,b) => b.date.localeCompare(a.date) || 0);
+  const totalPurchase = txs.filter(t=>t.type==='purchase').reduce((s,t)=>s+t.total,0);
+  const totalSale = txs.filter(t=>t.type==='sale').reduce((s,t)=>s+t.total,0);
+  const totalProfit = txs.filter(t=>t.type==='sale').reduce((s,t)=>s+t.profit,0);
+
+  const typeLabel = t => t.type === 'purchase' ? 'خرید' : t.type === 'payment' ? 'دریافت وجه' : 'فروش';
+  const customerCell = t => {
+    if(t.type === 'purchase' || !t.customerName) return '—';
+    return `${t.customerName}${t.customerPhone ? ` <span class="ltr" style="color:var(--ink-dim); font-size:11.5px;">(${t.customerPhone})</span>` : ''}`;
+  };
+  const filtered = sorted.filter(t =>
+    matchesSearch(t.itemName, ledgerSearchQuery) ||
+    matchesSearch(t.customerName, ledgerSearchQuery) ||
+    matchesSearch(t.customerPhone, ledgerSearchQuery) ||
+    matchesSearch(typeLabel(t), ledgerSearchQuery)
+  );
+  const rows = filtered.map(t => `
+    <tr>
+      <td>${jalaliDisplay(t.date)}</td>
+      <td><span class="badge ${t.type}">${typeLabel(t)}</span></td>
+      <td>${t.itemName}${t.kind === 'service' ? ` <span class="badge service" style="margin-right:6px;">${t.category ? serviceCategoryLabel(t.category) : 'خدمت'}</span>` : ''}</td>
+      <td>${t.qty != null ? numFa(t.qty) : '—'}</td>
+      <td>${t.unitPrice != null ? toman(t.unitPrice) : '—'}</td>
+      <td>${toman(t.total)}</td>
+      <td class="${t.type==='sale' ? (t.profit>=0?'stat-value green':'stat-value red') : ''}" style="font-weight:600;">${t.type==='sale' ? toman(t.profit) : '—'}</td>
+      <td>${customerCell(t)}</td>
+      <td>
+        <div class="row-actions">
+          ${(t.type === 'purchase' || t.type === 'sale') ? `<button class="btn-ghost btn-sm" data-action="edit-tx" data-id="${t.id}">ویرایش</button>` : ''}
+          <button class="btn-danger btn-sm" data-action="delete-tx" data-id="${t.id}">حذف</button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+
+  return `
+    <div class="cards-grid">
+      <div class="stat-card">
+        <div class="stat-label">جمع خرید کل</div>
+        <div class="stat-value red">${toman(totalPurchase)}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">جمع فروش کل</div>
+        <div class="stat-value green">${toman(totalSale)}</div>
+      </div>
+      <div class="stat-card wide">
+        <div class="stat-label">سود خالص کل</div>
+        <div class="stat-value ${totalProfit>=0?'green':'red'}">${toman(totalProfit)}</div>
+      </div>
+    </div>
+    <div class="field" style="margin-top:4px;">
+      <input type="text" id="ledger-search" placeholder="🔍 جستجو بر اساس نام کالا/خدمت، مشتری، شماره تماس یا نوع..." value="${ledgerSearchQuery}">
+    </div>
+    <div class="section-title"><span>گردش حساب</span></div>
+    ${sorted.length === 0 ? `
+      <div class="empty-state">
+        <div class="big">🧾</div>
+        <p>هنوز تراکنشی ثبت نشده است.</p>
+      </div>
+    ` : filtered.length === 0 ? `
+      <div class="empty-state">
+        <div class="big">🔍</div>
+        <p>تراکنشی با این مشخصات پیدا نشد.</p>
+      </div>
+    ` : `
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>تاریخ</th><th>نوع</th><th>کالا</th><th>تعداد</th><th>قیمت واحد</th><th>مبلغ کل</th><th>سود</th><th>مشتری</th><th>عملیات</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    `}
+  `;
+}
+
+/* ===================== 4-digit edit PIN + transaction editing ===================== */
+function requestEditPin(onSuccess){
+  if(!editPinHash){
+    openModal(`
+      <div class="modal-title">تنظیم رمز ۴ رقمی ویرایش <button class="modal-close" id="modal-close">✕</button></div>
+      <div class="hint-box" style="margin-top:0;">برای ویرایش ردیف‌های خرید و فروش، ابتدا یک رمز ۴ رقمی تنظیم کنید. این رمز جدا از رمز عبور ورود به برنامه است.</div>
+      <div class="field" style="margin-top:14px;"><label>رمز ۴ رقمی جدید</label><input type="password" id="setup-pin1" class="ltr" maxlength="4" inputmode="numeric" placeholder="مثلاً: ۱۲۳۴"></div>
+      <div class="field"><label>تکرار رمز ۴ رقمی</label><input type="password" id="setup-pin2" class="ltr" maxlength="4" inputmode="numeric"></div>
+      <div class="modal-actions">
+        <button class="btn-ghost" id="cancel-setup-pin">انصراف</button>
+        <button class="btn-primary" id="save-setup-pin">ذخیره و ادامه</button>
+      </div>
+    `);
+    document.getElementById('modal-close').onclick = closeModal;
+    document.getElementById('cancel-setup-pin').onclick = closeModal;
+    document.getElementById('save-setup-pin').onclick = async () => {
+      const p1 = document.getElementById('setup-pin1').value.trim();
+      const p2 = document.getElementById('setup-pin2').value.trim();
+      if(!/^\d{4}$/.test(p1)){ showToast('رمز باید دقیقاً ۴ رقم باشد'); return; }
+      if(p1 !== p2){ showToast('تکرار رمز مطابقت ندارد'); return; }
+      await saveEditPin(await sha256Hex(p1));
+      closeModal();
+      showToast('رمز ۴ رقمی تنظیم شد');
+      onSuccess();
+    };
+    return;
+  }
+
+  openModal(`
+    <div class="modal-title">ورود رمز ۴ رقمی <button class="modal-close" id="modal-close">✕</button></div>
+    <div class="field"><label>رمز ۴ رقمی ویرایش</label><input type="password" id="enter-pin" class="ltr" maxlength="4" inputmode="numeric" autofocus></div>
+    <div class="login-error" id="pin-err"></div>
+    <div class="modal-actions">
+      <button class="btn-ghost" id="cancel-enter-pin">انصراف</button>
+      <button class="btn-primary" id="confirm-enter-pin">تایید</button>
+    </div>
+  `);
+  document.getElementById('modal-close').onclick = closeModal;
+  document.getElementById('cancel-enter-pin').onclick = closeModal;
+  const doVerify = async () => {
+    const pin = document.getElementById('enter-pin').value.trim();
+    const hash = await sha256Hex(pin);
+    if(hash === editPinHash){ closeModal(); onSuccess(); }
+    else{ document.getElementById('pin-err').textContent = 'رمز اشتباه است'; }
+  };
+  document.getElementById('confirm-enter-pin').onclick = doVerify;
+  document.getElementById('enter-pin').addEventListener('keydown', e => { if(e.key === 'Enter') doVerify(); });
+}
+
+function openEditTransactionModal(txId){
+  const t = txs.find(x => x.id === txId);
+  if(!t) return;
+  openModal(`
+    <div class="modal-title">ویرایش ردیف ${t.type === 'purchase' ? 'خرید' : 'فروش'} <button class="modal-close" id="modal-close">✕</button></div>
+    <div class="hint-box" style="margin-top:0;">این ویرایش فقط همین رکورد گردش حساب را اصلاح می‌کند و روی موجودی فعلی انبار اثر نمی‌گذارد.</div>
+    <div class="field" style="margin-top:14px;"><label>کالا/خدمت</label><input type="text" value="${t.itemName}" disabled style="opacity:0.6;"></div>
+    <div class="two-col">
+      <div class="field"><label>تعداد</label><input type="number" id="etx-qty" class="ltr" min="1" value="${t.qty}"></div>
+      <div class="field"><label>قیمت واحد</label><input type="number" id="etx-price" class="ltr" min="0" value="${t.unitPrice}"></div>
+    </div>
+    <div class="field"><label>تاریخ</label><input type="date" id="etx-date" class="ltr" value="${t.date}"></div>
+    <div class="modal-actions">
+      <button class="btn-ghost" id="cancel-etx">انصراف</button>
+      <button class="btn-primary" id="save-etx">ذخیره تغییرات</button>
+    </div>
+  `);
+  document.getElementById('modal-close').onclick = closeModal;
+  document.getElementById('cancel-etx').onclick = closeModal;
+  document.getElementById('save-etx').onclick = async () => {
+    const qty = parseInt(document.getElementById('etx-qty').value, 10);
+    const unitPrice = parseFloat(document.getElementById('etx-price').value);
+    const date = document.getElementById('etx-date').value;
+    if(!qty || qty < 1 || isNaN(unitPrice) || unitPrice < 0 || !date){
+      showToast('لطفاً مقادیر را به‌درستی وارد کنید');
+      return;
+    }
+    const originalQty = t.qty || 1;
+    const costPerUnit = originalQty ? ((t.cost || 0) / originalQty) : 0;
+    t.qty = qty;
+    t.unitPrice = unitPrice;
+    t.date = date;
+    t.total = qty * unitPrice;
+    if(t.type === 'sale'){
+      t.cost = costPerUnit * qty;
+      t.profit = t.total - t.cost;
+    }
+    await saveTx();
+    closeModal();
+    showToast('تراکنش ویرایش شد');
+    renderMain();
+  };
+}
+
+async function deleteTransaction(txId){
+  const t = txs.find(x => x.id === txId);
+  if(!t) return;
+
+  // برای خرید/فروش کالا، موجودی انبار را متناسب برمی‌گردانیم تا داده‌ها هم‌خوان بمانند
+  if(t.kind !== 'service' && t.itemId){
+    const item = items.find(i => i.id === t.itemId);
+    if(item){
+      if(t.type === 'sale'){
+        item.qty += t.qty || 0;
+        if(item.qty > 0) item.exitDate = null;
+      } else if(t.type === 'purchase'){
+        item.qty = Math.max(0, item.qty - (t.qty || 0));
+      }
+      await saveItems();
+    }
+  }
+
+  txs = txs.filter(x => x.id !== txId);
+  await saveTx();
+  renderMain();
+  showToast('تراکنش حذف شد');
+}
+
+/* ===================== Expenses Tab (هزینه‌های جانبی) ===================== */
+function renderExpenses(){
+  const sorted = [...expenses].sort((a,b) => b.date.localeCompare(a.date));
+  const total = expenses.reduce((s,e) => s + e.amount, 0);
+  const filtered = sorted.filter(e => matchesSearch(e.title, expensesSearchQuery) || matchesSearch(e.note, expensesSearchQuery));
+
+  const rows = filtered.map(e => `
+    <tr>
+      <td>${jalaliDisplay(e.date)}</td>
+      <td>${e.title}</td>
+      <td>${e.note || '—'}</td>
+      <td>${toman(e.amount)}</td>
+      <td>
+        <div class="row-actions">
+          <button class="btn-ghost btn-sm" data-action="edit-expense" data-id="${e.id}">ویرایش</button>
+          <button class="btn-danger btn-sm" data-action="delete-expense" data-id="${e.id}">حذف</button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+
+  return `
+    <div class="cards-grid">
+      <div class="stat-card wide">
+        <div class="stat-label">جمع کل هزینه‌های جانبی</div>
+        <div class="stat-value red">${toman(total)}</div>
+      </div>
+    </div>
+    <div class="hint-box" style="margin-bottom:14px;">هزینه‌هایی مثل اجاره، قبض، حقوق و سایر مخارج دفتر که مربوط به خرید کالا یا خدمات نیستند، اینجا ثبت کنید. این هزینه‌ها از سود خالص در تب «سود و زیان» کسر می‌شوند.</div>
+    <div class="field" style="margin-top:4px;">
+      <input type="text" id="expenses-search" placeholder="🔍 جستجوی هزینه بر اساس عنوان یا یادداشت..." value="${expensesSearchQuery}">
+    </div>
+    <div class="section-title"><span>لیست هزینه‌های جانبی</span></div>
+    ${sorted.length === 0 ? `
+      <div class="empty-state">
+        <div class="big">🧾</div>
+        <p>هنوز هزینه‌ای ثبت نشده است.<br>با دکمه + یک هزینه جدید اضافه کنید.</p>
+      </div>
+    ` : filtered.length === 0 ? `
+      <div class="empty-state">
+        <div class="big">🔍</div>
+        <p>هزینه‌ای با این مشخصات پیدا نشد.</p>
+      </div>
+    ` : `
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>تاریخ</th><th>عنوان</th><th>یادداشت</th><th>مبلغ</th><th>عملیات</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    `}
+  `;
+}
+
+function openAddExpenseModal(){
+  openModal(`
+    <div class="modal-title">افزودن هزینه جانبی <button class="modal-close" id="modal-close">✕</button></div>
+    <div class="field"><label>عنوان هزینه</label><input type="text" id="ex-title" list="expense-title-datalist" placeholder="مثلاً: اجاره مغازه"><datalist id="expense-title-datalist">${nameDatalistOptions(expenses.map(e => e.title))}</datalist></div>
+    <div class="field"><label>مبلغ</label><input type="text" inputmode="numeric" id="ex-amount" class="ltr money-input"></div>
+    <div class="field"><label>تاریخ</label><input type="date" id="ex-date" class="ltr" value="${todayISO()}"></div>
+    <div class="field"><label>یادداشت (اختیاری)</label><input type="text" id="ex-note" placeholder="توضیح تکمیلی"></div>
+    <div class="modal-actions">
+      <button class="btn-ghost" id="cancel-ex">انصراف</button>
+      <button class="btn-primary" id="save-ex">ذخیره هزینه</button>
+    </div>
+  `);
+  bindMoneyInputFormatting();
+  document.getElementById('modal-close').onclick = closeModal;
+  document.getElementById('cancel-ex').onclick = closeModal;
+  document.getElementById('save-ex').onclick = async () => {
+    const title = document.getElementById('ex-title').value.trim();
+    const amount = parseMoneyInput('ex-amount');
+    const date = document.getElementById('ex-date').value;
+    const note = document.getElementById('ex-note').value.trim();
+    if(!title || isNaN(amount) || amount < 0 || !date){
+      showToast('لطفاً همه فیلدها را به‌درستی پر کنید');
+      return;
+    }
+    expenses.push({ id: uid(), title, amount, date, note, createdDate: todayISO() });
+    await saveExpenses();
+    closeModal();
+    showToast('هزینه با موفقیت ثبت شد');
+    renderMain();
+  };
+}
+
+function openEditExpenseModal(expenseId){
+  const e = expenses.find(x => x.id === expenseId);
+  if(!e) return;
+  openModal(`
+    <div class="modal-title">ویرایش هزینه <button class="modal-close" id="modal-close">✕</button></div>
+    <div class="field"><label>عنوان هزینه</label><input type="text" id="eex-title" list="expense-title-datalist" value="${e.title}"><datalist id="expense-title-datalist">${nameDatalistOptions(expenses.map(x => x.title))}</datalist></div>
+    <div class="field"><label>مبلغ</label><input type="text" inputmode="numeric" id="eex-amount" class="ltr money-input" value="${formatMoneyInputValue(e.amount)}"></div>
+    <div class="field"><label>تاریخ</label><input type="date" id="eex-date" class="ltr" value="${e.date}"></div>
+    <div class="field"><label>یادداشت (اختیاری)</label><input type="text" id="eex-note" value="${e.note || ''}"></div>
+    <div class="modal-actions">
+      <button class="btn-ghost" id="cancel-eex">انصراف</button>
+      <button class="btn-primary" id="save-eex">ذخیره تغییرات</button>
+    </div>
+  `);
+  bindMoneyInputFormatting();
+  document.getElementById('modal-close').onclick = closeModal;
+  document.getElementById('cancel-eex').onclick = closeModal;
+  document.getElementById('save-eex').onclick = async () => {
+    const title = document.getElementById('eex-title').value.trim();
+    const amount = parseMoneyInput('eex-amount');
+    const date = document.getElementById('eex-date').value;
+    const note = document.getElementById('eex-note').value.trim();
+    if(!title || isNaN(amount) || amount < 0 || !date){
+      showToast('لطفاً همه فیلدها را به‌درستی پر کنید');
+      return;
+    }
+    e.title = title; e.amount = amount; e.date = date; e.note = note;
+    await saveExpenses();
+    closeModal();
+    showToast('تغییرات هزینه ذخیره شد');
+    renderMain();
+  };
+}
+
+/* ===================== Reports Tab ===================== */
+function txInReportRange(t){
+  if(reportDateFrom && t.date < reportDateFrom) return false;
+  if(reportDateTo && t.date > reportDateTo) return false;
+  return true;
+}
+function expenseInReportRange(e){
+  if(reportDateFrom && e.date < reportDateFrom) return false;
+  if(reportDateTo && e.date > reportDateTo) return false;
+  return true;
+}
+
+function aggregate(periodType){
+  const map = {};
+  txs.filter(txInReportRange).forEach(t => {
+    const p = jalaliParts(t.date);
+    let key, label;
+    if(periodType === 'day'){ key = `${p.y}-${p.m}-${p.d}`; label = jalaliDisplay(t.date); }
+    else if(periodType === 'month'){ key = `${p.y}-${p.m}`; label = jalaliMonthLabel(t.date); }
+    else { key = `${p.y}`; label = toFaDigits(p.y); }
+
+    if(!map[key]) map[key] = { key, label, salesCount:0, salesRevenue:0, cost:0, profit:0, purchaseQty:0, purchaseCost:0, expenseTotal:0 };
+    if(t.type === 'sale'){
+      map[key].salesCount += t.qty;
+      map[key].salesRevenue += t.total;
+      map[key].cost += t.cost;
+      map[key].profit += t.profit;
+    } else {
+      map[key].purchaseQty += t.qty;
+      map[key].purchaseCost += t.total;
+    }
+  });
+  expenses.filter(expenseInReportRange).forEach(e => {
+    const p = jalaliParts(e.date);
+    let key, label;
+    if(periodType === 'day'){ key = `${p.y}-${p.m}-${p.d}`; label = jalaliDisplay(e.date); }
+    else if(periodType === 'month'){ key = `${p.y}-${p.m}`; label = jalaliMonthLabel(e.date); }
+    else { key = `${p.y}`; label = toFaDigits(p.y); }
+
+    if(!map[key]) map[key] = { key, label, salesCount:0, salesRevenue:0, cost:0, profit:0, purchaseQty:0, purchaseCost:0, expenseTotal:0 };
+    map[key].expenseTotal += e.amount;
+  });
+  return Object.values(map).sort((a,b) => b.key.localeCompare(a.key));
+}
+
+function aggregateSalesByName(kind, categoryFilter){
+  const map = {};
+  txs.filter(txInReportRange).forEach(t => {
+    if(t.type !== 'sale' || t.kind !== kind) return;
+    if(categoryFilter && (t.category || 'other') !== categoryFilter) return;
+    const key = t.itemName;
+    if(!map[key]) map[key] = { name: key, qty: 0, cost: 0, revenue: 0, profit: 0 };
+    map[key].qty += t.qty || 0;
+    map[key].cost += t.cost || 0;
+    map[key].revenue += t.total || 0;
+    map[key].profit += t.profit || 0;
+  });
+  return Object.values(map).sort((a,b) => b.profit - a.profit);
+}
+
+function renderReports(){
+  const rangedTxs = txs.filter(txInReportRange);
+  const totalPurchase = rangedTxs.filter(t=>t.type==='purchase').reduce((s,t)=>s+t.total,0);
+  const totalSale = rangedTxs.filter(t=>t.type==='sale').reduce((s,t)=>s+t.total,0);
+  const totalSalesProfit = rangedTxs.filter(t=>t.type==='sale').reduce((s,t)=>s+t.profit,0);
+  const rangedExpenses = expenses.filter(expenseInReportRange);
+  const totalExpenses = rangedExpenses.reduce((s,e)=>s+e.amount,0);
+  const totalNetProfit = totalSalesProfit - totalExpenses;
+
+  const rowsData = aggregate(reportPeriod);
+  const periodHeader = reportPeriod === 'day' ? 'روز' : reportPeriod === 'month' ? 'ماه' : 'سال';
+  const rangeLabel = (reportDateFrom || reportDateTo)
+    ? `بازه: ${reportDateFrom ? jalaliDisplay(reportDateFrom) : 'ابتدا'} تا ${reportDateTo ? jalaliDisplay(reportDateTo) : 'امروز'}`
+    : 'بازه: همه‌ی دوران';
+
+  const rows = rowsData.map(r => `
+    <tr>
+      <td>${r.label}</td>
+      <td>${numFa(r.salesCount)}</td>
+      <td>${toman(r.salesRevenue)}</td>
+      <td>${toman(r.purchaseCost)}</td>
+      <td class="${r.profit>=0?'stat-value green':'stat-value red'}" style="font-weight:700;">${toman(r.profit)}</td>
+      <td class="stat-value red">${toman(r.expenseTotal)}</td>
+      <td class="${(r.profit-r.expenseTotal)>=0?'stat-value green':'stat-value red'}" style="font-weight:700;">${toman(r.profit-r.expenseTotal)}</td>
+    </tr>
+  `).join('');
+
+  const expenseRows = [...rangedExpenses].sort((a,b) => b.date.localeCompare(a.date)).map(e => `
+    <tr>
+      <td>${jalaliDisplay(e.date)}</td>
+      <td>${e.title}</td>
+      <td>${e.note || '—'}</td>
+      <td>${toman(e.amount)}</td>
+    </tr>
+  `).join('');
+
+  return `
+    <div class="cards-grid">
+      <div class="stat-card"><div class="stat-label">جمع خرید کل</div><div class="stat-value red">${toman(totalPurchase)}</div></div>
+      <div class="stat-card"><div class="stat-label">جمع فروش کل</div><div class="stat-value green">${toman(totalSale)}</div></div>
+      <div class="stat-card"><div class="stat-label">سود ناخالص فروش</div><div class="stat-value ${totalSalesProfit>=0?'green':'red'}">${toman(totalSalesProfit)}</div></div>
+      <div class="stat-card"><div class="stat-label">جمع هزینه‌های جانبی</div><div class="stat-value red">${toman(totalExpenses)}</div></div>
+      <div class="stat-card wide"><div class="stat-label">سود خالص نهایی — ${rangeLabel}</div><div class="stat-value ${totalNetProfit>=0?'green':'red'}" style="font-size:22px;">${toman(totalNetProfit)}</div></div>
+    </div>
+
+    <div class="section-title"><span>بازه زمانی گزارش</span></div>
+    <div class="panel">
+      <div class="two-col">
+        <div class="field"><label>از تاریخ</label><input type="date" id="report-date-from" class="ltr" value="${reportDateFrom || ''}"></div>
+        <div class="field"><label>تا تاریخ</label><input type="date" id="report-date-to" class="ltr" value="${reportDateTo || ''}"></div>
+      </div>
+      <div style="display:flex; gap:8px;">
+        <button class="btn-ghost btn-block" id="clear-report-range">همه‌ی دوران</button>
+        <button class="btn-primary btn-block" id="apply-report-range">اعمال بازه</button>
+      </div>
+      <div class="hint-box" style="margin-top:10px;">این بازه روی همه‌ی جدول‌های همین صفحه (گزارش دوره‌ای، هزینه و سود انبار و خدمات) اعمال می‌شود.</div>
+    </div>
+
+    <div class="section-title"><span>گزارش سود و زیان</span></div>
+    <div class="sub-tabs">
+      <div class="sub-tab ${reportPeriod==='day'?'active':''}" data-period="day">روزانه</div>
+      <div class="sub-tab ${reportPeriod==='month'?'active':''}" data-period="month">ماهانه</div>
+      <div class="sub-tab ${reportPeriod==='year'?'active':''}" data-period="year">سالانه</div>
+    </div>
+
+    ${rowsData.length === 0 ? `
+      <div class="empty-state">
+        <div class="big">📊</div>
+        <p>برای مشاهده گزارش، ابتدا خرید و فروش ثبت کنید.</p>
+      </div>
+    ` : `
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>${periodHeader}</th><th>تعداد فروش</th><th>جمع فروش</th><th>جمع خرید دوره</th><th>سود فروش</th><th>هزینه‌های جانبی</th><th>سود خالص</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    `}
+
+    <div class="section-title" style="margin-top:20px;"><span>هزینه‌های جانبی (بازه انتخابی)</span></div>
+    ${rangedExpenses.length === 0 ? `
+      <div class="empty-state"><div class="big">🧾</div><p>هزینه‌ای در این بازه ثبت نشده است.</p></div>
+    ` : `
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>تاریخ</th><th>عنوان</th><th>یادداشت</th><th>مبلغ</th></tr></thead>
+          <tbody>
+            ${expenseRows}
+            <tr style="background:var(--panel-2);">
+              <td style="font-weight:800;" colspan="3">جمع کل هزینه‌های جانبی</td>
+              <td class="stat-value red" style="font-weight:800;">${toman(totalExpenses)}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    `}
+
+    ${renderCostProfitBreakdown('product', 'هزینه و سود انبار (بر اساس کالا)', 'کالا')}
+    ${SERVICE_CATEGORIES.map(cat => renderCostProfitBreakdown('service', `هزینه و سود ${cat.label}`, 'خدمت', cat.key)).join('')}
+  `;
+}
+
+function renderCostProfitBreakdown(kind, title, nameHeader, categoryFilter){
+  const data = aggregateSalesByName(kind, categoryFilter);
+  const totalCost = data.reduce((s,r) => s + r.cost, 0);
+  const totalRevenue = data.reduce((s,r) => s + r.revenue, 0);
+  const totalProfit = data.reduce((s,r) => s + r.profit, 0);
+
+  const rows = data.map(r => `
+    <tr>
+      <td>${r.name}</td>
+      <td>${numFa(r.qty)}</td>
+      <td>${toman(r.cost)}</td>
+      <td>${toman(r.revenue)}</td>
+      <td class="${r.profit>=0?'stat-value green':'stat-value red'}" style="font-weight:700;">${toman(r.profit)}</td>
+    </tr>
+  `).join('');
+
+  return `
+    <div class="section-title" style="margin-top:20px;"><span>${title}</span></div>
+    ${data.length === 0 ? `
+      <div class="empty-state"><div class="big">📄</div><p>هنوز فروشی از این نوع ثبت نشده است.</p></div>
+    ` : `
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>${nameHeader}</th><th>تعداد فروخته‌شده</th><th>جمع هزینه</th><th>جمع فروش</th><th>سود</th></tr></thead>
+          <tbody>
+            ${rows}
+            <tr style="background:var(--panel-2);">
+              <td style="font-weight:800;">جمع کل</td>
+              <td>—</td>
+              <td style="font-weight:800;">${toman(totalCost)}</td>
+              <td style="font-weight:800;">${toman(totalRevenue)}</td>
+              <td class="${totalProfit>=0?'stat-value green':'stat-value red'}" style="font-weight:800;">${toman(totalProfit)}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    `}
+  `;
+}
+
+/* ===================== Backup / Restore ===================== */
+/* ===================== Invoice Excel Export ===================== */
+function invoiceSerialNumber(invoice){
+  const p = jalaliParts(invoice.date);
+  return `${p.d}${p.m}${p.y}-${invoice.id.slice(-4)}`;
+}
+
+async function deleteInvoice(invoiceId){
+  const invoice = invoices.find(i => i.id === invoiceId);
+  if(!invoice) return;
+
+  const relatedTxs = txs.filter(t => t.invoiceId === invoiceId);
+  relatedTxs.forEach(t => {
+    if(t.kind !== 'service' && t.itemId){
+      const item = items.find(i => i.id === t.itemId);
+      if(item){
+        item.qty += t.qty || 0;
+        if(item.qty > 0) item.exitDate = null;
+      }
+    }
+  });
+
+  txs = txs.filter(t => t.invoiceId !== invoiceId);
+  invoices = invoices.filter(i => i.id !== invoiceId);
+  await saveItems(); await saveTx(); await saveInvoices();
+  renderMain();
+  showToast('فاکتور و تراکنش‌های مرتبط حذف شد');
+}
+
+function downloadInvoiceExcel(invoiceId){
+  const invoice = invoices.find(i => i.id === invoiceId);
+  if(!invoice) return;
+  const biz = businessInfo || DEFAULT_BUSINESS_INFO;
+  const cust = invoice.customerId ? customers.find(c => c.id === invoice.customerId) : null;
+
+  const rows = invoice.lines.map((l, idx) => `
+    <tr>
+      <td style="border:1px solid #000; padding:5px; text-align:center;">${idx + 1}</td>
+      <td style="border:1px solid #000; padding:5px;">${l.name}</td>
+      <td style="border:1px solid #000; padding:5px; text-align:center;">${numFa(l.qty)}</td>
+      <td style="border:1px solid #000; padding:5px; text-align:center;">عدد</td>
+      <td style="border:1px solid #000; padding:5px; text-align:center;">${numFa(l.unitPrice)}</td>
+      <td style="border:1px solid #000; padding:5px; text-align:center;">0</td>
+      <td style="border:1px solid #000; padding:5px; text-align:center;">${numFa(l.total)}</td>
+    </tr>
+  `).join('');
+
+  // Pad with a few empty rows so the table has a similar look to a printed form
+  const emptyRowsNeeded = Math.max(0, 5 - invoice.lines.length);
+  const emptyRows = Array.from({ length: emptyRowsNeeded }).map(() => `
+    <tr>
+      <td style="border:1px solid #000; padding:5px; height:22px;">&nbsp;</td>
+      <td style="border:1px solid #000; padding:5px;">&nbsp;</td>
+      <td style="border:1px solid #000; padding:5px;">&nbsp;</td>
+      <td style="border:1px solid #000; padding:5px;">&nbsp;</td>
+      <td style="border:1px solid #000; padding:5px;">&nbsp;</td>
+      <td style="border:1px solid #000; padding:5px;">&nbsp;</td>
+      <td style="border:1px solid #000; padding:5px;">&nbsp;</td>
+    </tr>
+  `).join('');
+
+  const th = 'border:1px solid #000; padding:6px; text-align:center; font-weight:bold; background:#eee;';
+  const label = 'border:1px solid #000; padding:5px; font-weight:bold; background:#f7f7f7;';
+  const val = 'border:1px solid #000; padding:5px;';
+  const section = 'border:1px solid #000; padding:6px; font-weight:bold; background:#ddd; text-align:center;';
+
+  const html = `
+    <html dir="rtl">
+    <head><meta charset="UTF-8"></head>
+    <body style="font-family:Tahoma, Arial; direction:rtl;">
+    <table style="border-collapse:collapse; width:100%; font-size:12px;">
+      <tr><td colspan="7" style="${section} font-size:15px;">صورتحساب فروش کالا و خدمات</td></tr>
+      <tr>
+        <td style="${label}">سریال</td><td style="${val}">${invoiceSerialNumber(invoice)}</td>
+        <td style="${label}">تاریخ</td><td style="${val}">${jalaliDisplay(invoice.date)}</td>
+        <td style="${label}">نوع پرداخت</td><td colspan="2" style="${val}">${paymentTypeLabel(invoice.paymentType)}</td>
+      </tr>
+
+      <tr><td colspan="7" style="${section}">مشخصات فروشنده کالا و خدمات</td></tr>
+      <tr>
+        <td style="${label}">نام</td><td style="${val}">${biz.name || '-'}</td>
+        <td style="${label}">صاحب امضاء</td><td style="${val}">${biz.ownerName || '-'}</td>
+        <td style="${label}">تلفن</td><td colspan="2" style="${val}" dir="ltr">${biz.phone || '-'}</td>
+      </tr>
+      <tr>
+        <td style="${label}">شماره اقتصادی</td><td style="${val}">${biz.economicCode || '-'}</td>
+        <td style="${label}">شماره ثبت</td><td style="${val}">${biz.registrationNo || '-'}</td>
+        <td style="${label}">کد ملی</td><td colspan="2" style="${val}">${biz.nationalId || '-'}</td>
+      </tr>
+      <tr><td style="${label}">نشانی</td><td colspan="6" style="${val}">${biz.address || '-'}</td></tr>
+
+      <tr><td colspan="7" style="${section}">مشخصات خریدار</td></tr>
+      <tr>
+        <td style="${label}">نام</td><td colspan="2" style="${val}">${invoice.customerName || 'مشتری مهمان'}</td>
+        <td style="${label}">تلفن</td><td colspan="2" style="${val}" dir="ltr">${invoice.customerPhone || '-'}</td>
+        <td style="${val}"></td>
+      </tr>
+      <tr><td style="${label}">نشانی</td><td colspan="6" style="${val}">${cust && cust.address ? cust.address : '-'}</td></tr>
+
+      <tr>
+        <td style="${th}">ردیف</td>
+        <td style="${th}">شرح کالا یا خدمات</td>
+        <td style="${th}">تعداد/مقدار</td>
+        <td style="${th}">واحد</td>
+        <td style="${th}">مبلغ واحد (تومان)</td>
+        <td style="${th}">تخفیف (تومان)</td>
+        <td style="${th}">مبلغ کل (تومان)</td>
+      </tr>
+      ${rows}
+      ${emptyRows}
+
+      <tr>
+        <td colspan="6" style="${label} text-align:left;">خالص قابل پرداخت (تومان)</td>
+        <td style="border:1px solid #000; padding:6px; font-weight:bold; text-align:center;">${numFa(invoice.total)}</td>
+      </tr>
+
+      <tr>
+        <td colspan="3" style="border:1px solid #000; padding:26px; text-align:center;">مهر و امضاء فروشنده</td>
+        <td colspan="4" style="border:1px solid #000; padding:26px; text-align:center;">مهر و امضاء خریدار</td>
+      </tr>
+
+      <tr><td colspan="7" style="border:1px solid #000; padding:6px; font-size:11px;">
+        توضیحات: ${biz.cardNumber ? `شماره کارت: ${biz.cardNumber}` : ''}${biz.shaba ? ` — شماره شبا: ${biz.shaba}` : ''}${biz.ownerName ? ` — به نام: ${biz.ownerName}` : ''}
+      </td></tr>
+      <tr><td colspan="7" style="border:1px solid #000; padding:6px; font-size:11px;">
+        ${biz.deliveryTime ? `زمان تحویل: ${biz.deliveryTime}` : ''}${biz.validityNote ? ` — ${biz.validityNote}` : ''}
+      </td></tr>
+    </table>
+    </body></html>
+  `;
+
+  const blob = new Blob(['\ufeff' + html], { type: 'application/vnd.ms-excel' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `invoice-${invoiceSerialNumber(invoice)}.xls`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('فایل اکسل فاکتور دانلود شد');
+}
+
+function exportData(){
+  const payload = {
+    appName: 'سامانه بابک',
+    exportVersion: 1,
+    exportedAt: todayISO(),
+    items, txs, invoices, services, customers, reminders, expenses
+  };
+  const json = JSON.stringify(payload, null, 2);
+  const blob = new Blob([json], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `babak-backup-${todayISO()}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('فایل پشتیبان دانلود شد');
+}
+
+function triggerImportPicker(){
+  const input = document.getElementById('import-file-input');
+  if(input) input.click();
+}
+
+async function handleImportFile(file){
+  if(!file) return;
+  let data;
+  try{
+    const text = await file.text();
+    data = JSON.parse(text);
+  }catch(err){
+    showToast('فایل انتخاب‌شده یک فایل پشتیبان معتبر نیست');
+    return;
+  }
+  const looksValid = data && (Array.isArray(data.items) || Array.isArray(data.txs) || Array.isArray(data.invoices));
+  if(!looksValid){
+    showToast('ساختار فایل پشتیبان شناسایی نشد');
+    return;
+  }
+  confirmAction('با بازیابی این فایل، تمام اطلاعات فعلی این دستگاه (کالاها، خدمات، مشتریان، یادآوری‌ها، هزینه‌های جانبی، فاکتورها و گردش حساب) برای همیشه با اطلاعات فایل جایگزین می‌شود. ادامه می‌دهید؟', async () => {
+    items = Array.isArray(data.items) ? data.items : [];
+    txs = Array.isArray(data.txs) ? data.txs : [];
+    invoices = Array.isArray(data.invoices) ? data.invoices : [];
+    services = Array.isArray(data.services) ? data.services : [];
+    customers = Array.isArray(data.customers) ? data.customers : [];
+    reminders = Array.isArray(data.reminders) ? data.reminders : [];
+    expenses = Array.isArray(data.expenses) ? data.expenses : [];
+    cart = [];
+    await saveItems(); await saveTx(); await saveInvoices(); await saveServices(); await saveCustomers(); await saveReminders(); await saveExpenses();
+    syncCustomerDisplay();
+    renderMain();
+    showToast('اطلاعات با موفقیت بازیابی شد');
+  });
+}
+
+/* ===================== Settings Tab ===================== */
+function renderSettings(){
+  const biz = businessInfo || DEFAULT_BUSINESS_INFO;
+  const todayIso = todayISO();
+  const todayWeekday = new Intl.DateTimeFormat('fa-IR-u-ca-persian', { weekday: 'long' }).format(new Date(todayIso + 'T12:00:00'));
+  const todayGregorian = new Date(todayIso + 'T12:00:00').toLocaleDateString('en-GB');
+  return `
+    <div class="section-title"><span>تاریخ و تقویم برنامه</span></div>
+    <div class="panel">
+      <div class="stat-card" style="margin-bottom:12px;">
+        <div class="stat-label">امروز (تقویم شمسی)</div>
+        <div class="stat-value gold" style="font-size:18px;">${todayWeekday}، ${jalaliDisplay(todayIso)}</div>
+      </div>
+      <p style="font-size:12.5px; color:var(--ink-dim); line-height:1.9; margin-top:0;">
+        معادل میلادی امروز: <span class="ltr" style="display:inline-block;">${todayGregorian}</span><br>
+        تمام تاریخ‌هایی که در سراسر برنامه (انبار، صندوق فروش، گردش حساب، یادآوری‌ها و گزارش‌ها) نمایش داده می‌شود، بر اساس تقویم شمسی (جلالی) است. فقط انتخاب‌گر تاریخ (تقویمی که برای وارد کردن تاریخ باز می‌شود) به‌دلیل محدودیت مرورگر به‌صورت میلادی نمایش داده می‌شود، اما مقداری که ثبت و نمایش داده می‌شود همیشه شمسی است.
+      </p>
+    </div>
+
+    <div class="section-title"><span>اطلاعات فروشنده (برای فاکتور اکسل)</span></div>
+    <div class="panel">
+      <p style="font-size:12.5px; color:var(--ink-dim); line-height:1.9; margin-top:0;">
+        این اطلاعات در فایل اکسل فاکتوری که از هر فروش می‌گیرید، در قسمت «مشخصات فروشنده» و توضیحات پایین فاکتور درج می‌شود.
+      </p>
+      <div class="two-col">
+        <div class="field"><label>نام کسب‌وکار</label><input type="text" id="biz-name" value="${biz.name || ''}"></div>
+        <div class="field"><label>نام صاحب امضاء</label><input type="text" id="biz-owner" value="${biz.ownerName || ''}"></div>
+      </div>
+      <div class="two-col">
+        <div class="field"><label>تلفن</label><input type="text" id="biz-phone" class="ltr" value="${biz.phone || ''}"></div>
+        <div class="field"><label>کد ملی</label><input type="text" id="biz-national" class="ltr" value="${biz.nationalId || ''}"></div>
+      </div>
+      <div class="two-col">
+        <div class="field"><label>شماره اقتصادی</label><input type="text" id="biz-econ" class="ltr" value="${biz.economicCode || ''}"></div>
+        <div class="field"><label>شماره ثبت</label><input type="text" id="biz-reg" class="ltr" value="${biz.registrationNo || ''}"></div>
+      </div>
+      <div class="field"><label>نشانی</label><input type="text" id="biz-address" value="${biz.address || ''}"></div>
+      <div class="two-col">
+        <div class="field"><label>شماره کارت بانکی</label><input type="text" id="biz-card" class="ltr" value="${biz.cardNumber || ''}"></div>
+        <div class="field"><label>شماره شبا</label><input type="text" id="biz-shaba" class="ltr" value="${biz.shaba || ''}"></div>
+      </div>
+      <div class="field"><label>زمان تحویل (متن ثابت فاکتور)</label><input type="text" id="biz-delivery" value="${biz.deliveryTime || ''}"></div>
+      <div class="field"><label>یادداشت اعتبار فاکتور</label><input type="text" id="biz-validity" value="${biz.validityNote || ''}"></div>
+      <button class="btn-primary btn-block" id="save-biz-btn">ذخیره اطلاعات فروشنده</button>
+    </div>
+
+    <div class="section-title"><span>تغییر رمز عبور</span></div>
+    <div class="panel">
+      <div class="field"><label>رمز عبور فعلی</label><input type="password" id="cur-pass"></div>
+      <div class="field"><label>رمز عبور جدید</label><input type="password" id="new-pass1"></div>
+      <div class="field"><label>تکرار رمز عبور جدید</label><input type="password" id="new-pass2b"></div>
+      <button class="btn-primary btn-block" id="change-pass-btn">به‌روزرسانی رمز عبور</button>
+    </div>
+
+    <div class="section-title"><span>رمز ۴ رقمی ویرایش تراکنش‌ها</span></div>
+    <div class="panel">
+      <p style="font-size:12.5px; color:var(--ink-dim); line-height:1.9; margin-top:0;">
+        این رمز جداگانه، برای ویرایش ردیف‌های خرید و فروش در گردش حساب درخواست می‌شود.
+      </p>
+      ${editPinHash ? `
+        <div class="field"><label>رمز ۴ رقمی فعلی</label><input type="password" id="cur-pin" class="ltr" maxlength="4" inputmode="numeric"></div>
+      ` : `<div class="hint-box" style="margin-bottom:14px;">هنوز رمزی تنظیم نشده — همین‌جا یکی بسازید.</div>`}
+      <div class="field"><label>رمز ۴ رقمی جدید</label><input type="password" id="new-pin1" class="ltr" maxlength="4" inputmode="numeric"></div>
+      <div class="field"><label>تکرار رمز ۴ رقمی جدید</label><input type="password" id="new-pin2" class="ltr" maxlength="4" inputmode="numeric"></div>
+      <button class="btn-primary btn-block" id="change-pin-btn">${editPinHash ? 'به‌روزرسانی رمز ۴ رقمی' : 'تنظیم رمز ۴ رقمی'}</button>
+    </div>
+
+    <div class="section-title"><span>پشتیبان‌گیری خودکار</span></div>
+    <div class="panel">
+      <p style="font-size:12.5px; color:var(--ink-dim); line-height:1.9; margin-top:0;">
+        بعد از انتخاب یک پوشه، هر بار که یک فروش در «صندوق فروش» تکمیل شود، یک
+        نسخه‌ی به‌روز از تمام اطلاعات (به‌صورت فایل babak-backup.json) به‌طور
+        خودکار در همان پوشه ذخیره می‌شود — بدون نیاز به هیچ کلیک اضافه‌ای.
+      </p>
+      <div class="hint-box" style="margin-bottom:12px;">${
+        backupMode === 'unsupported'
+          ? 'مرورگر شما از پشتیبان‌گیری خودکار پشتیبانی نمی‌کند. از Chrome، Edge یا نسخه دسکتاپ سامانه بابک استفاده کنید.'
+          : hasBackupFolderConfigured()
+            ? (backupMode === 'electron' ? `پوشه فعال: ${backupFolderPath}` : 'یک پوشه برای پشتیبان خودکار متصل است ✓')
+            : 'هنوز پوشه‌ای برای پشتیبان خودکار انتخاب نشده است.'
+      }</div>
+      ${backupMode !== 'unsupported' ? `
+        <button class="btn-primary btn-block" id="choose-backup-folder-settings-btn">${hasBackupFolderConfigured() ? 'تغییر پوشه پشتیبان' : 'انتخاب پوشه پشتیبان'}</button>
+      ` : ''}
+    </div>
+
+    <div class="section-title"><span>پشتیبان‌گیری دستی</span></div>
+    <div class="panel">
+      <p style="font-size:12.5px; color:var(--ink-dim); line-height:1.9; margin-top:0;">
+        با زدن این دکمه، از تمام اطلاعات تا همین لحظه (کالاها، خدمات، مشتریان،
+        یادآوری‌ها، هزینه‌های جانبی، فاکتورها و گردش حساب) بلافاصله یک فایل
+        پشتیبان ساخته و دانلود می‌شود — در کنار پشتیبان خودکار (اگر پوشه‌ای
+        تنظیم کرده باشید، همان لحظه آن را هم به‌روز می‌کند).
+      </p>
+      <button class="btn-primary btn-block" id="manual-backup-btn">📥 تهیه و دانلود نسخه پشتیبان همین الان</button>
+    </div>
+
+    <div class="section-title"><span>بازیابی اطلاعات</span></div>
+    <div class="panel">
+      <p style="font-size:12.5px; color:var(--ink-dim); line-height:1.9; margin-top:0;">
+        برای انتقال اطلاعات به یک دستگاه دیگر، فایل پشتیبان (babak-backup.json)
+        را از پوشه‌ی پشتیبان همراه فایل برنامه منتقل کنید و اینجا بازیابی نمایید.
+      </p>
+      <button class="btn-ghost btn-block" id="import-data-btn">بازیابی از فایل پشتیبان</button>
+      <input type="file" id="import-file-input" accept="application/json,.json" style="display:none;">
+      <div class="hint-box">
+        بازیابی از فایل پشتیبان، تمام اطلاعات فعلی همین دستگاه (کالاها، خدمات،
+        مشتریان، فاکتورها و گردش حساب) را با اطلاعات داخل فایل جایگزین می‌کند.
+        رمز عبور دستگاه تغییری نمی‌کند.
+      </div>
+    </div>
+
+    <div class="section-title"><span>داده‌ها</span></div>
+    <div class="panel">
+      <p style="font-size:12.5px; color:var(--ink-dim); line-height:1.9; margin-top:0;">
+        همه اطلاعات انبار و گردش حساب روی همین دستگاه ذخیره می‌شود. با پاک کردن اطلاعات، تمام کالاها و تراکنش‌ها برای همیشه حذف خواهند شد.
+      </p>
+      <button class="btn-danger btn-block" id="reset-data-btn">پاک‌کردن کامل اطلاعات انبار و حساب</button>
+    </div>
+  `;
+}
+
+/* ===================== Event delegation ===================== */
+function attachHandlers(){
+  bindMoneyInputFormatting();
+
+  bindTableSearch('inventory-search', v => { inventorySearchQuery = v; }, renderMain);
+  bindTableSearch('services-search', v => { servicesSearchQuery = v; }, renderMain);
+  bindTableSearch('customers-search', v => { customersSearchQuery = v; }, renderMain);
+  bindTableSearch('expenses-search', v => { expensesSearchQuery = v; }, renderMain);
+  bindTableSearch('ledger-search', v => { ledgerSearchQuery = v; }, renderMain);
+  bindTableSearch('reminders-search', v => { remindersSearchQuery = v; }, renderMain);
+
+  const posAddBtn = document.getElementById('pos-add-btn');
+  if(posAddBtn){
+    posAddBtn.onclick = () => {
+      const sel = document.getElementById('pos-item-select');
+      const qtyInput = document.getElementById('pos-qty');
+      const itemId = sel.value;
+      const qty = parseInt(qtyInput.value, 10);
+      if(!itemId){ showToast('کالایی برای افزودن انتخاب نشده'); return; }
+      if(!qty || qty < 1){ showToast('تعداد نامعتبر است'); return; }
+      addToCart(itemId, qty);
+    };
+  }
+  const posAddServiceBtn = document.getElementById('pos-add-service-btn');
+  if(posAddServiceBtn){
+    posAddServiceBtn.onclick = () => {
+      const sel = document.getElementById('pos-service-select');
+      const qtyInput = document.getElementById('pos-service-qty');
+      const serviceId = sel.value;
+      const qty = parseInt(qtyInput.value, 10);
+      if(!serviceId){ showToast('خدمتی برای افزودن انتخاب نشده'); return; }
+      if(!qty || qty < 1){ showToast('تعداد نامعتبر است'); return; }
+      addServiceToCart(serviceId, qty);
+    };
+  }
+  const posAddAdhocBtn = document.getElementById('pos-add-adhoc-btn');
+  if(posAddAdhocBtn){
+    posAddAdhocBtn.onclick = () => {
+      const category = document.getElementById('pos-adhoc-category').value;
+      const name = document.getElementById('pos-adhoc-name').value.trim();
+      const cost = parseMoneyInput('pos-adhoc-cost');
+      const salePrice = parseMoneyInput('pos-adhoc-sale');
+      const qty = parseInt(document.getElementById('pos-adhoc-qty').value, 10);
+      if(!name || isNaN(cost) || cost < 0 || isNaN(salePrice) || salePrice < 0 || !qty || qty < 1){
+        showToast('لطفاً همه فیلدها را به‌درستی پر کنید');
+        return;
+      }
+      addAdHocServiceToCart(category, name, cost, salePrice, qty);
+    };
+  }
+  document.querySelectorAll('[data-action="cart-inc"]').forEach(b => b.onclick = () => changeCartQty(b.dataset.id, b.dataset.kind, 1));
+  document.querySelectorAll('[data-action="cart-dec"]').forEach(b => b.onclick = () => changeCartQty(b.dataset.id, b.dataset.kind, -1));
+  document.querySelectorAll('[data-action="cart-remove"]').forEach(b => b.onclick = () => removeCartLine(b.dataset.id, b.dataset.kind));
+  const posClearBtn = document.getElementById('pos-clear-btn');
+  if(posClearBtn){
+    posClearBtn.onclick = () => {
+      if(cart.length === 0) return;
+      confirmAction('سبد خرید فعلی پاک شود؟', () => { cart = []; syncCustomerDisplay(); renderMain(); });
+    };
+  }
+  const posCheckoutBtn = document.getElementById('pos-checkout-btn');
+  if(posCheckoutBtn) posCheckoutBtn.onclick = finalizeSale;
+
+  const posCustomerNameInput = document.getElementById('pos-customer-name');
+  const posCustomerPhoneInput = document.getElementById('pos-customer-phone');
+  if(posCustomerNameInput && posCustomerPhoneInput){
+    posCustomerNameInput.addEventListener('change', () => {
+      if(posCustomerPhoneInput.value.trim()) return;
+      const match = customers.find(c => c.name === posCustomerNameInput.value.trim());
+      if(match && match.phone) posCustomerPhoneInput.value = match.phone;
+    });
+  }
+
+  document.querySelectorAll('[data-action="sell"]').forEach(b => b.onclick = () => openSellModal(b.dataset.id));
+  document.querySelectorAll('[data-action="edit-item"]').forEach(b => b.onclick = () => openEditItemModal(b.dataset.id));
+  document.querySelectorAll('[data-action="delete-item"]').forEach(b => {
+    b.onclick = () => {
+      confirmAction('آیا از حذف این کالا از لیست انبار مطمئن هستید؟ تراکنش‌های قبلی آن در گردش حساب باقی می‌مانند.', async () => {
+        items = items.filter(i => i.id !== b.dataset.id);
+        await saveItems();
+        renderMain();
+        showToast('کالا حذف شد');
+      });
+    };
+  });
+
+  document.querySelectorAll('[data-action="edit-service"]').forEach(b => b.onclick = () => openEditServiceModal(b.dataset.id));
+  document.querySelectorAll('[data-action="delete-service"]').forEach(b => {
+    b.onclick = () => {
+      confirmAction('این خدمت از لیست خدمات حذف شود؟', async () => {
+        services = services.filter(s => s.id !== b.dataset.id);
+        await saveServices();
+        renderMain();
+        showToast('خدمت حذف شد');
+      });
+    };
+  });
+
+  document.querySelectorAll('[data-action="view-customer"]').forEach(b => b.onclick = () => openCustomerDetail(b.dataset.id));
+  document.querySelectorAll('[data-action="edit-customer"]').forEach(b => b.onclick = () => openEditCustomerModal(b.dataset.id));
+  document.querySelectorAll('[data-action="delete-customer"]').forEach(b => {
+    b.onclick = () => {
+      confirmAction('این مشتری حذف شود؟ فاکتورهای قبلی او در گردش حساب باقی می‌مانند.', async () => {
+        customers = customers.filter(c => c.id !== b.dataset.id);
+        await saveCustomers();
+        renderMain();
+        showToast('مشتری حذف شد');
+      });
+    };
+  });
+
+  document.querySelectorAll('[data-action="edit-expense"]').forEach(b => b.onclick = () => openEditExpenseModal(b.dataset.id));
+  document.querySelectorAll('[data-action="delete-expense"]').forEach(b => {
+    b.onclick = () => {
+      confirmAction('این هزینه حذف شود؟', async () => {
+        expenses = expenses.filter(e => e.id !== b.dataset.id);
+        await saveExpenses();
+        renderMain();
+        showToast('هزینه حذف شد');
+      });
+    };
+  });
+
+  document.querySelectorAll('[data-action="complete-reminder"]').forEach(b => b.onclick = () => completeReminder(b.dataset.id));
+  document.querySelectorAll('[data-action="ics-reminder"]').forEach(b => b.onclick = () => downloadReminderICS(b.dataset.id));
+  document.querySelectorAll('[data-action="edit-reminder"]').forEach(b => {
+    if(!b.closest('#modal-card')) b.onclick = () => openEditReminderModal(b.dataset.id);
+  });
+  document.querySelectorAll('[data-action="delete-reminder"]').forEach(b => {
+    if(!b.closest('#modal-card')){
+      b.onclick = () => {
+        confirmAction('این یادآوری حذف شود؟', async () => {
+          reminders = reminders.filter(r => r.id !== b.dataset.id);
+          await saveReminders();
+          renderMain();
+          showToast('یادآوری حذف شد');
+        });
+      };
+    }
+  });
+
+  const toggleSoldout = document.getElementById('toggle-soldout');
+  if(toggleSoldout) toggleSoldout.onchange = () => { showSoldOut = toggleSoldout.checked; renderMain(); };
+
+  document.querySelectorAll('[data-action="edit-tx"]').forEach(b => {
+    b.onclick = () => requestEditPin(() => openEditTransactionModal(b.dataset.id));
+  });
+
+  document.querySelectorAll('[data-action="delete-tx"]').forEach(b => {
+    b.onclick = () => requestEditPin(() => {
+      confirmAction('این تراکنش برای همیشه حذف شود؟ در صورت مربوط بودن به کالا، موجودی انبار متناسب اصلاح می‌شود.', () => deleteTransaction(b.dataset.id));
+    });
+  });
+
+  document.querySelectorAll('[data-action="download-invoice-excel"]').forEach(b => {
+    b.onclick = () => downloadInvoiceExcel(b.dataset.id);
+  });
+
+  document.querySelectorAll('[data-action="delete-invoice"]').forEach(b => {
+    if(!b.closest('#modal-card')){
+      b.onclick = () => requestEditPin(() => {
+        confirmAction('این فاکتور و تراکنش‌های مربوط به آن برای همیشه حذف شوند؟ موجودی انبار کالاهای آن به‌طور خودکار اصلاح می‌شود.', () => deleteInvoice(b.dataset.id));
+      });
+    }
+  });
+
+  document.querySelectorAll('.sub-tab').forEach(el => {
+    el.onclick = () => {
+      if(el.dataset.period){ reportPeriod = el.dataset.period; renderMain(); }
+      else if(el.dataset.crmview){ crmSubView = el.dataset.crmview; renderMain(); }
+    };
+  });
+
+  const applyRangeBtn = document.getElementById('apply-report-range');
+  if(applyRangeBtn){
+    applyRangeBtn.onclick = () => {
+      const from = document.getElementById('report-date-from').value;
+      const to = document.getElementById('report-date-to').value;
+      if(from && to && from > to){ showToast('تاریخ «از» نمی‌تواند بعد از تاریخ «تا» باشد'); return; }
+      reportDateFrom = from || null;
+      reportDateTo = to || null;
+      renderMain();
+    };
+  }
+  const clearRangeBtn = document.getElementById('clear-report-range');
+  if(clearRangeBtn){
+    clearRangeBtn.onclick = () => {
+      reportDateFrom = null;
+      reportDateTo = null;
+      renderMain();
+    };
+  }
+
+  const saveBizBtn = document.getElementById('save-biz-btn');
+  if(saveBizBtn){
+    saveBizBtn.onclick = async () => {
+      businessInfo = {
+        name: document.getElementById('biz-name').value.trim(),
+        ownerName: document.getElementById('biz-owner').value.trim(),
+        phone: document.getElementById('biz-phone').value.trim(),
+        nationalId: document.getElementById('biz-national').value.trim(),
+        economicCode: document.getElementById('biz-econ').value.trim(),
+        registrationNo: document.getElementById('biz-reg').value.trim(),
+        address: document.getElementById('biz-address').value.trim(),
+        cardNumber: document.getElementById('biz-card').value.trim(),
+        shaba: document.getElementById('biz-shaba').value.trim(),
+        deliveryTime: document.getElementById('biz-delivery').value.trim(),
+        validityNote: document.getElementById('biz-validity').value.trim()
+      };
+      await saveBusinessInfo();
+      showToast('اطلاعات فروشنده ذخیره شد');
+    };
+  }
+
+  const changePassBtn = document.getElementById('change-pass-btn');
+  if(changePassBtn){
+    changePassBtn.onclick = async () => {
+      const cur = document.getElementById('cur-pass').value;
+      const n1 = document.getElementById('new-pass1').value;
+      const n2 = document.getElementById('new-pass2b').value;
+      const curHash = await sha256Hex(cur);
+      if(curHash !== authHash){ showToast('رمز عبور فعلی اشتباه است'); return; }
+      if(n1.length < 4){ showToast('رمز جدید باید حداقل ۴ کاراکتر باشد'); return; }
+      if(n1 !== n2){ showToast('تکرار رمز جدید مطابقت ندارد'); return; }
+      const newHash = await sha256Hex(n1);
+      await saveAuth(newHash);
+      showToast('رمز عبور با موفقیت تغییر کرد');
+      document.getElementById('cur-pass').value = '';
+      document.getElementById('new-pass1').value = '';
+      document.getElementById('new-pass2b').value = '';
+    };
+  }
+
+  const changePinBtn = document.getElementById('change-pin-btn');
+  if(changePinBtn){
+    changePinBtn.onclick = async () => {
+      if(editPinHash){
+        const curPinEl = document.getElementById('cur-pin');
+        const curPin = curPinEl ? curPinEl.value.trim() : '';
+        const curHash = await sha256Hex(curPin);
+        if(curHash !== editPinHash){ showToast('رمز ۴ رقمی فعلی اشتباه است'); return; }
+      }
+      const n1 = document.getElementById('new-pin1').value.trim();
+      const n2 = document.getElementById('new-pin2').value.trim();
+      if(!/^\d{4}$/.test(n1)){ showToast('رمز باید دقیقاً ۴ رقم باشد'); return; }
+      if(n1 !== n2){ showToast('تکرار رمز جدید مطابقت ندارد'); return; }
+      await saveEditPin(await sha256Hex(n1));
+      showToast('رمز ۴ رقمی با موفقیت ذخیره شد');
+      renderMain();
+    };
+  }
+
+  const resetBtn = document.getElementById('reset-data-btn');
+  if(resetBtn){
+    resetBtn.onclick = () => {
+      confirmAction('با تایید این عملیات، تمام کالاها، خدمات، مشتریان، یادآوری‌ها، هزینه‌های جانبی و گردش حساب برای همیشه پاک می‌شوند و قابل بازگشت نیستند.', async () => {
+        items = []; txs = []; invoices = []; services = []; customers = []; reminders = []; expenses = []; cart = [];
+        await saveItems(); await saveTx(); await saveInvoices(); await saveServices(); await saveCustomers(); await saveReminders(); await saveExpenses();
+        syncCustomerDisplay();
+        renderMain();
+        showToast('تمام اطلاعات پاک شد');
+      });
+    };
+  }
+
+  const chooseFolderSettingsBtn = document.getElementById('choose-backup-folder-settings-btn');
+  if(chooseFolderSettingsBtn) chooseFolderSettingsBtn.onclick = chooseBackupFolder;
+
+  const manualBackupBtn = document.getElementById('manual-backup-btn');
+  if(manualBackupBtn){
+    manualBackupBtn.onclick = async () => {
+      exportData();
+      if(hasBackupFolderConfigured()) await writeAutoBackup();
+    };
+  }
+
+  const importBtn = document.getElementById('import-data-btn');
+  if(importBtn) importBtn.onclick = triggerImportPicker;
+
+  const importInput = document.getElementById('import-file-input');
+  if(importInput){
+    importInput.onchange = (e) => {
+      const file = e.target.files[0];
+      handleImportFile(file);
+      e.target.value = '';
+    };
+  }
+}
+
+document.getElementById('fab-add').addEventListener('click', () => {
+  if(currentTab === 'inventory') openAddItemModal();
+  else if(currentTab === 'services') openAddServiceModal();
+  else if(currentTab === 'customers') openAddCustomerModal();
+  else if(currentTab === 'expenses') openAddExpenseModal();
+});
+document.getElementById('modal-overlay').addEventListener('click', (e) => {
+  if(e.target.id === 'modal-overlay') closeModal();
+});
+document.getElementById('logout-btn').addEventListener('click', () => {
+  confirmAction('برای خروج از حساب کاربری مطمئن هستید؟', () => {
+    document.getElementById('app-shell').style.display = 'none';
+    document.getElementById('fab-add').style.display = 'none';
+    document.getElementById('login-screen').style.display = 'flex';
+    renderLoginEnter();
+  });
+});
+
+/* ===================== Boot ===================== */
+(async function boot(){
+  await loadState();
+  if(authHash){ renderLoginEnter(); }
+  else{ renderLoginSetup(); }
+})();
+</script>
+</body>
+</html>

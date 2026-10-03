@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>سامانه بابک | نمایشگر مشتری</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap');
+
+  :root{
+    --bg: #10201A;
+    --panel: #17291F;
+    --panel-2: #1E3328;
+    --border: #2E4736;
+    --ink: #F1ECDE;
+    --ink-dim: #A9C0AE;
+    --gold: #D8B26A;
+    --green: #86D8A8;
+  }
+  *{ box-sizing:border-box; }
+  html,body{
+    margin:0; height:100%;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Vazirmatn', Tahoma, sans-serif;
+    overflow:hidden;
+  }
+  #screen{
+    height:100vh; width:100vw;
+    display:flex; flex-direction:column;
+    padding: 4vh 5vw;
+  }
+
+  .brandbar{ display:flex; align-items:center; gap:16px; margin-bottom: 3vh; }
+  .seal{
+    width:56px; height:56px; border-radius:50%; border:2px solid var(--gold);
+    display:flex; align-items:center; justify-content:center;
+    font-size:24px; font-weight:800; color:var(--gold);
+  }
+  .brandbar .title{ font-size: 22px; font-weight:800; }
+  .fs-btn{
+    margin-right:auto;
+    background: var(--panel-2); border:1px solid var(--border); color:var(--ink-dim);
+    border-radius:8px; padding:8px 14px; font-size:13px; cursor:pointer;
+  }
+
+  /* ---- Idle ---- */
+  #idle-view{
+    flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center;
+  }
+  #idle-view .big-seal{
+    width: 140px; height:140px; border-radius:50%; border:3px solid var(--gold);
+    display:flex; align-items:center; justify-content:center; font-size:56px; font-weight:800; color:var(--gold);
+    margin-bottom: 28px;
+  }
+  #idle-view h1{ font-size: 34px; margin:0 0 10px 0; }
+  #idle-view p{ font-size:16px; color:var(--ink-dim); margin:0; }
+
+  /* ---- Cart view ---- */
+  #cart-view{ flex:1; display:none; flex-direction:column; }
+  #cart-view h2{ font-size:20px; color:var(--ink-dim); margin:0 0 16px 0; font-weight:600; }
+  .cart-list{ flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:10px; }
+  .cart-line{
+    display:flex; align-items:center; justify-content:space-between;
+    background: var(--panel); border:1px solid var(--border); border-radius:12px;
+    padding: 16px 20px; font-size: 20px;
+  }
+  .cart-line .name{ font-weight:700; }
+  .cart-line .qty{ color: var(--ink-dim); font-size:15px; margin-top:4px; }
+  .cart-line .amount{ font-weight:800; font-size:22px; color:var(--gold); }
+  .cart-total-bar{
+    display:flex; align-items:center; justify-content:space-between;
+    border-top: 2px solid var(--border); padding-top: 20px; margin-top:16px;
+  }
+  .cart-total-bar .label{ font-size:18px; color:var(--ink-dim); }
+  .cart-total-bar .value{ font-size: 40px; font-weight:800; color:var(--gold); }
+
+  /* ---- Receipt view ---- */
+  #receipt-view{ flex:1; display:none; flex-direction:column; align-items:center; justify-content:center; }
+  .receipt-card{
+    background: var(--panel); border:1px solid var(--border); border-radius:16px;
+    padding: 32px 36px; width: 100%; max-width: 560px;
+  }
+  .receipt-card .check{
+    width:64px; height:64px; border-radius:50%; background: rgba(134,216,168,0.15);
+    color: var(--green); display:flex; align-items:center; justify-content:center;
+    font-size:30px; margin: 0 auto 16px auto;
+  }
+  .receipt-card h2{ text-align:center; margin:0 0 4px 0; font-size:22px; }
+  .receipt-card .sub{ text-align:center; color:var(--ink-dim); font-size:13px; margin-bottom:22px; }
+  .receipt-line{ display:flex; justify-content:space-between; font-size:15px; padding:8px 0; border-bottom:1px dashed var(--border); }
+  .receipt-total{ display:flex; justify-content:space-between; align-items:center; margin-top:18px; padding-top:16px; border-top:2px solid var(--border); }
+  .receipt-total .label{ font-size:16px; color:var(--ink-dim); }
+  .receipt-total .value{ font-size:30px; font-weight:800; color:var(--gold); }
+</style>
+</head>
+<body>
+<div id="screen">
+  <div class="brandbar">
+    <div class="seal">ب</div>
+    <div class="title">سامانه بابک</div>
+    <button class="fs-btn" id="fs-toggle">تمام‌صفحه</button>
+  </div>
+
+  <div id="idle-view">
+    <div class="big-seal">ب</div>
+    <h1>به فروشگاه ما خوش آمدید</h1>
+    <p>کالاهای خرید شما و مبلغ نهایی، اینجا نمایش داده می‌شود</p>
+  </div>
+
+  <div id="cart-view">
+    <h2>سبد خرید شما</h2>
+    <div class="cart-list" id="cart-list"></div>
+    <div class="cart-total-bar">
+      <span class="label">جمع کل</span>
+      <span class="value" id="cart-total">۰ تومان</span>
+    </div>
+  </div>
+
+  <div id="receipt-view">
+    <div class="receipt-card">
+      <div class="check">✓</div>
+      <h2>خرید شما با موفقیت ثبت شد</h2>
+      <div class="sub" id="receipt-date"></div>
+      <div id="receipt-lines"></div>
+      <div class="receipt-total">
+        <span class="label">مبلغ پرداختی</span>
+        <span class="value" id="receipt-total"></span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function numFa(n){ return Number(n||0).toLocaleString('fa-IR'); }
+function toman(n){ return numFa(n) + ' تومان'; }
+function toFaDigits(input){ return String(input).replace(/[0-9]/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]); }
+
+const jMonths = ['فروردین','اردیبهشت','خرداد','تیر','مرداد','شهریور','مهر','آبان','آذر','دی','بهمن','اسفند'];
+function jalaliDisplay(iso){
+  const d = new Date(iso + 'T12:00:00');
+  const parts = new Intl.DateTimeFormat('en-US-u-ca-persian', {year:'numeric', month:'2-digit', day:'2-digit'}).formatToParts(d);
+  const obj = {}; parts.forEach(p => obj[p.type] = p.value);
+  return toFaDigits(`${obj.year}/${obj.month}/${obj.day}`);
+}
+
+const idleView = document.getElementById('idle-view');
+const cartView = document.getElementById('cart-view');
+const receiptView = document.getElementById('receipt-view');
+
+let receiptTimer = null;
+
+function showIdle(){
+  idleView.style.display = 'flex';
+  cartView.style.display = 'none';
+  receiptView.style.display = 'none';
+}
+function showCart(data){
+  idleView.style.display = 'none';
+  receiptView.style.display = 'none';
+  cartView.style.display = 'flex';
+  const list = document.getElementById('cart-list');
+  if(!data.lines || data.lines.length === 0){
+    list.innerHTML = `<div style="color:var(--ink-dim); font-size:16px; text-align:center; margin-top:40px;">در انتظار افزودن کالا...</div>`;
+  } else {
+    list.innerHTML = data.lines.map(l => `
+      <div class="cart-line">
+        <div>
+          <div class="name">${l.name}</div>
+          <div class="qty">${numFa(l.qty)} عدد × ${toman(l.unitPrice)}</div>
+        </div>
+        <div class="amount">${toman(l.total)}</div>
+      </div>
+    `).join('');
+  }
+  document.getElementById('cart-total').textContent = toman(data.total || 0);
+}
+function showReceipt(invoice){
+  if(receiptTimer) clearTimeout(receiptTimer);
+  idleView.style.display = 'none';
+  cartView.style.display = 'none';
+  receiptView.style.display = 'flex';
+  document.getElementById('receipt-date').textContent = jalaliDisplay(invoice.date);
+  document.getElementById('receipt-lines').innerHTML = invoice.lines.map(l => `
+    <div class="receipt-line">
+      <span>${l.name} × ${numFa(l.qty)}</span>
+      <span>${toman(l.total)}</span>
+    </div>
+  `).join('');
+  document.getElementById('receipt-total').textContent = toman(invoice.total);
+  receiptTimer = setTimeout(showIdle, 10000);
+}
+
+if(typeof window.posBridge !== 'undefined'){
+  window.posBridge.onCartUpdate((data) => {
+    if(!data.lines || data.lines.length === 0) showIdle();
+    else showCart(data);
+  });
+  window.posBridge.onInvoice((invoice) => {
+    showReceipt(invoice);
+  });
+  document.getElementById('fs-toggle').onclick = () => window.posBridge.toggleFullscreen();
+} else {
+  document.getElementById('fs-toggle').style.display = 'none';
+}
+
+showIdle();
+</script>
+</body>
+</html>
